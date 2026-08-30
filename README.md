@@ -84,6 +84,25 @@ choice. If you'd rather not pay a third party at all, switch the gallery section
 **source** to "Images managed here" and upload photos in Studio — the same component
 renders both, no code change.
 
+## Publishing the Studio
+
+Two separate things, both run from this repo with the Sanity CLI (they need your
+own `sanity login`, so they aren't scripted here):
+
+```bash
+npx sanity schema deploy   # publishes the schema so Sanity tooling knows the types
+npx sanity deploy          # publishes a hosted Studio at treeworks-cornwall.sanity.studio
+```
+
+`npx sanity deploy` is optional. The Studio is already embedded in this app at
+`/studio`, so once the Netlify site is live you have a Studio there either way.
+A hosted one is useful before that — it gives the client somewhere to edit
+without waiting on the frontend deploy.
+
+`basePath` switches automatically: `/studio` for the embedded route, `/` for the
+standalone deploy (via `SANITY_STUDIO_BASE_PATH` in `.env`, which only the Sanity
+CLI build can see).
+
 ## Deploying
 
 Netlify, building from this repo. `netlify.toml` is configured. Set these environment

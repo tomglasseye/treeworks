@@ -4,17 +4,31 @@ import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './studio/schemaTypes'
 import {structure, SINGLETONS} from './studio/structure'
 
-const projectId = import.meta.env.VITE_SANITY_PROJECT_ID as string
-const dataset = (import.meta.env.VITE_SANITY_DATASET as string) ?? 'production'
+/**
+ * One config, two build toolchains.
+ *
+ * The React Router build (Vite) exposes only `VITE_*`; the Sanity CLI build
+ * exposes only `SANITY_STUDIO_*`. So read both, and fall back to the literal
+ * values — projectId and dataset are publishable, not secrets.
+ */
+const env = (import.meta.env ?? {}) as Record<string, string | undefined>
+
+const projectId = env.SANITY_STUDIO_PROJECT_ID ?? env.VITE_SANITY_PROJECT_ID ?? 'bb392mn5'
+const dataset = env.SANITY_STUDIO_DATASET ?? env.VITE_SANITY_DATASET ?? 'production'
+
+/**
+ * Embedded in the site, the Studio lives under /studio. Deployed standalone to
+ * *.sanity.studio it is served from the host root, so the base path must change.
+ * `.env` sets SANITY_STUDIO_BASE_PATH=/ which only the Sanity CLI build can see.
+ */
+const basePath = env.SANITY_STUDIO_BASE_PATH ?? '/studio'
 
 export default defineConfig({
   name: 'treeworks',
   title: 'Treeworks Cornwall',
   projectId,
   dataset,
-
-  // Mounted inside the React Router app at /studio.
-  basePath: '/studio',
+  basePath,
 
   plugins: [structureTool({structure}), visionTool()],
 
