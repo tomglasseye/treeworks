@@ -16,7 +16,8 @@ export function FeatureList({
   section: FeatureListSection
   settings?: SiteSettings
 }) {
-  const {eyebrow, heading, intro, layout = 'alternating', items = [], appearance} = section
+  const {eyebrow, heading, intro, layout = 'alternating', appearance} = section
+  const items = section.items ?? []
   const tone = appearance?.tone
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)

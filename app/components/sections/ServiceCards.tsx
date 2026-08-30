@@ -4,7 +4,8 @@ import {Figure} from '../ui/Figure'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
 
 export function ServiceCards({section}: {section: ServiceCardsSection}) {
-  const {heading, intro, cards = [], appearance} = section
+  const {heading, intro, appearance} = section
+  const cards = section.cards ?? []
   const tone = appearance?.tone
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)

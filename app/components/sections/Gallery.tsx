@@ -23,12 +23,14 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
     limit = 12,
     showCaptions,
     linkPostsToInstagram = true,
-    images = [],
-    fallbackImages = [],
     layout = 'masonry',
     showFollowButton = true,
     appearance,
   } = section
+
+  // GROQ sends null for absent arrays, so coalesce rather than default.
+  const images = section.images ?? []
+  const fallbackImages = section.fallbackImages ?? []
 
   const tone = appearance?.tone
   const onDark = tone === 'bark'

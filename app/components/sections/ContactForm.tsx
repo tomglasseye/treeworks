@@ -29,8 +29,6 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
   const {
     heading,
     intro,
-    fields = ['name', 'email', 'phone', 'message'],
-    serviceOptions = [],
     formName = 'contact',
     submitLabel = 'Send enquiry',
     successMessage,
@@ -38,6 +36,10 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
     showContactDetailsAlongside = true,
     appearance,
   } = section
+
+  // GROQ sends null for absent arrays, so coalesce rather than default.
+  const fields = section.fields ?? ['name', 'email', 'phone', 'message']
+  const serviceOptions = section.serviceOptions ?? []
 
   const tone = appearance?.tone
   const onDark = tone === 'bark'

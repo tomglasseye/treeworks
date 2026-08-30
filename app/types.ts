@@ -56,7 +56,7 @@ export type SiteSettings = {
   email?: string
   address?: Address
   serviceArea?: string
-  openingHours?: {_key?: string; days?: string; hours?: string}[]
+  openingHours?: {_key?: string; days?: string; hours?: string}[] | null
   instagramHandle?: string
   facebookUrl?: string
   logoUrl?: string
@@ -67,14 +67,14 @@ export type NavItem = {
   _key?: string
   label?: string
   link?: ResolvedLink
-  children?: NavItem[]
+  children?: NavItem[] | null
 }
 
 export type Navigation = {
-  headerLinks?: NavItem[]
+  headerLinks?: NavItem[] | null
   headerCta?: Cta
-  footerColumns?: {_key?: string; heading?: string; links?: NavItem[]}[]
-  legalLinks?: NavItem[]
+  footerColumns?: {_key?: string; heading?: string; links?: NavItem[] | null}[] | null
+  legalLinks?: NavItem[] | null
 }
 
 export type Seo = {
@@ -101,7 +101,7 @@ export type BaseSection = {
   heading?: string
   eyebrow?: string
   intro?: string
-  buttons?: Cta[]
+  buttons?: Cta[] | null
 }
 
 export type Section = BaseSection & Record<string, unknown>
@@ -112,9 +112,9 @@ export type PageDoc = {
   title?: string
   slug?: string
   town?: string
-  localIntro?: PortableTextBlock[]
-  nearbyAreas?: string[]
-  sections?: Section[]
+  localIntro?: PortableTextBlock[] | null
+  nearbyAreas?: string[] | null
+  sections?: Section[] | null
   seo?: Seo
 }
 
@@ -154,18 +154,18 @@ export type HeroSection = BaseSection & {
 export type StatementSection = BaseSection & {
   _type: 'statement'
   leadIn?: string
-  statement?: PortableTextBlock[]
+  statement?: PortableTextBlock[] | null
 }
 
 export type RichTextSection = BaseSection & {
   _type: 'richText'
-  body?: PortableTextBlock[]
+  body?: PortableTextBlock[] | null
   width?: 'narrow' | 'wide'
 }
 
 export type TextWithImageSection = BaseSection & {
   _type: 'textWithImage'
-  body?: PortableTextBlock[]
+  body?: PortableTextBlock[] | null
   image?: SanityImage
   imagePosition?: 'left' | 'right'
 }
@@ -173,7 +173,7 @@ export type TextWithImageSection = BaseSection & {
 export type FeatureItem = {
   _key?: string
   title?: string
-  body?: PortableTextBlock[]
+  body?: PortableTextBlock[] | null
   image?: SanityImage
   button?: Cta
 }
@@ -181,7 +181,7 @@ export type FeatureItem = {
 export type FeatureListSection = BaseSection & {
   _type: 'featureList'
   layout?: 'alternating' | 'numbered' | 'cards' | 'compact'
-  items?: FeatureItem[]
+  items?: FeatureItem[] | null
 }
 
 export type ServiceCard = {
@@ -194,7 +194,7 @@ export type ServiceCard = {
 
 export type ServiceCardsSection = BaseSection & {
   _type: 'serviceCards'
-  cards?: ServiceCard[]
+  cards?: ServiceCard[] | null
 }
 
 export type TestimonialsSection = BaseSection & {
@@ -202,7 +202,7 @@ export type TestimonialsSection = BaseSection & {
   mode?: 'latest' | 'selected'
   limit?: number
   layout?: 'grid' | 'carousel' | 'single'
-  items?: Testimonial[]
+  items?: Testimonial[] | null
 }
 
 export type GallerySection = BaseSection & {
@@ -211,8 +211,8 @@ export type GallerySection = BaseSection & {
   limit?: number
   showCaptions?: boolean
   linkPostsToInstagram?: boolean
-  images?: SanityImage[]
-  fallbackImages?: SanityImage[]
+  images?: SanityImage[] | null
+  fallbackImages?: SanityImage[] | null
   layout?: 'masonry' | 'grid' | 'strip'
   showFollowButton?: boolean
 }
@@ -226,8 +226,8 @@ export type CallToActionSection = BaseSection & {
 
 export type ContactFormSection = BaseSection & {
   _type: 'contactForm'
-  fields?: string[]
-  serviceOptions?: string[]
+  fields?: string[] | null
+  serviceOptions?: string[] | null
   formName?: string
   submitLabel?: string
   successMessage?: string
@@ -244,11 +244,11 @@ export type ContactDetailsSection = BaseSection & {
   showMap?: boolean
 }
 
-export type FaqItem = {_key?: string; question?: string; answer?: PortableTextBlock[]}
+export type FaqItem = {_key?: string; question?: string; answer?: PortableTextBlock[] | null}
 
 export type FaqSection = BaseSection & {
   _type: 'faq'
-  items?: FaqItem[]
+  items?: FaqItem[] | null
   emitStructuredData?: boolean
 }
 
@@ -256,14 +256,14 @@ export type LogoItem = {_key?: string; name?: string; image?: SanityImage; link?
 
 export type LogoStripSection = BaseSection & {
   _type: 'logoStrip'
-  logos?: LogoItem[]
+  logos?: LogoItem[] | null
 }
 
 export type StatItem = {_key?: string; value?: string; label?: string}
 
 export type StatsSection = BaseSection & {
   _type: 'stats'
-  items?: StatItem[]
+  items?: StatItem[] | null
 }
 
 export type ImageBannerSection = BaseSection & {

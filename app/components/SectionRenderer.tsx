@@ -64,7 +64,7 @@ export function SectionRenderer({
   sections,
   settings,
 }: {
-  sections?: Section[]
+  sections?: Section[] | null
   settings?: SiteSettings
 }) {
   if (!sections?.length) return null

@@ -2,7 +2,8 @@ import type {StatsSection} from '~/types'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
 
 export function Stats({section}: {section: StatsSection}) {
-  const {heading, items = [], appearance} = section
+  const {heading, appearance} = section
+  const items = section.items ?? []
   const tone = appearance?.tone
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)

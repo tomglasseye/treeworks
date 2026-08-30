@@ -18,7 +18,8 @@ function formatDate(date?: string) {
 }
 
 export function Testimonials({section}: {section: TestimonialsSection}) {
-  const {heading, items = [], layout = 'grid', limit, mode, appearance} = section
+  const {heading, layout = 'grid', limit, mode, appearance} = section
+  const items = section.items ?? []
   const tone = appearance?.tone
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)

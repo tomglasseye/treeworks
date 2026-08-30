@@ -15,7 +15,8 @@ function toPlainText(blocks: unknown): string {
 }
 
 export function Faq({section}: {section: FaqSection}) {
-  const {heading, items = [], emitStructuredData, appearance} = section
+  const {heading, emitStructuredData, appearance} = section
+  const items = section.items ?? []
   const tone = appearance?.tone
   const onDark = tone === 'bark'
   const rule = toneRule(tone)

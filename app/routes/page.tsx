@@ -38,7 +38,7 @@ export default function Page({loaderData}: Route.ComponentProps) {
         <section className="bg-bone py-20 md:py-section">
           <div className="u-container max-w-[68ch]">
             <Prose value={page.localIntro} />
-            {page.nearbyAreas?.length ? (
+            {page.nearbyAreas && page.nearbyAreas.length > 0 ? (
               <div className="mt-10">
                 <h2 className="u-eyebrow mb-4 text-muted">Also serving</h2>
                 <ul className="flex flex-wrap gap-2">

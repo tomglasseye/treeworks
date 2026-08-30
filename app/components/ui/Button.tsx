@@ -86,7 +86,7 @@ export function ButtonRow({
   tone,
   className = '',
 }: {
-  buttons?: Cta[]
+  buttons?: Cta[] | null
   settings?: SiteSettings
   tone?: Tone
   className?: string

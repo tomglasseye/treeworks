@@ -3,7 +3,8 @@ import {Figure} from '../ui/Figure'
 import {Section as Wrapper} from '../ui/Section'
 
 export function LogoStrip({section}: {section: LogoStripSection}) {
-  const {heading, logos = [], appearance} = section
+  const {heading, appearance} = section
+  const logos = section.logos ?? []
   const onDark = appearance?.tone === 'bark'
 
   return (
