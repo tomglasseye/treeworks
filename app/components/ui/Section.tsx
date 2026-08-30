@@ -1,4 +1,5 @@
 import type {Appearance, Tone, Spacing} from '~/types'
+import {opt} from '~/lib/stega'
 
 const TONE: Record<Tone, string> = {
   bone: 'bg-bone text-ink',
@@ -27,12 +28,13 @@ export function Section({
   className?: string
   as?: 'section' | 'div' | 'footer' | 'header'
 }) {
-  const tone = (appearance?.tone ?? 'bone') as Tone
-  const spacing = (appearance?.spacing ?? 'normal') as Spacing
+  // Cleaned: these index into the TONE/SPACING maps below.
+  const tone = (opt(appearance?.tone) ?? 'bone') as Tone
+  const spacing = (opt(appearance?.spacing) ?? 'normal') as Spacing
 
   return (
     <Tag
-      id={appearance?.anchorId || undefined}
+      id={opt(appearance?.anchorId) || undefined}
       data-tone={tone}
       className={`${TONE[tone] ?? TONE.bone} ${SPACING[spacing] ?? SPACING.normal} ${className}`}
     >
@@ -43,9 +45,9 @@ export function Section({
 
 /** Muted text that stays legible on a dark panel. */
 export function toneMuted(tone?: Tone) {
-  return tone === 'bark' ? 'text-bone/70' : 'text-muted'
+  return opt(tone) === 'bark' ? 'text-bone/70' : 'text-muted'
 }
 
 export function toneRule(tone?: Tone) {
-  return tone === 'bark' ? 'border-bone/20' : 'border-rule'
+  return opt(tone) === 'bark' ? 'border-bone/20' : 'border-rule'
 }

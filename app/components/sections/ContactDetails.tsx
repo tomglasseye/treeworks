@@ -1,5 +1,6 @@
 import type {ContactDetailsSection, SiteSettings, Address} from '~/types'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 export function formatAddress(address?: Address): string {
   if (!address) return ''
@@ -17,7 +18,7 @@ export function ContactDetails({
 }) {
   const {heading, showPhone = true, showEmail = true, showAddress = true, showSocials = true, appearance} =
     section
-  const tone = appearance?.tone
+  const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)
   const linkClass = `no-underline transition-opacity hover:opacity-70 ${

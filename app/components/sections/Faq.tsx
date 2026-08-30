@@ -1,6 +1,8 @@
 import type {FaqSection} from '~/types'
 import {Prose} from '../ui/Prose'
 import {Section as Wrapper, toneRule} from '../ui/Section'
+import {opt} from '~/lib/stega'
+import {stegaClean} from '@sanity/client/stega'
 
 function toPlainText(blocks: unknown): string {
   if (!Array.isArray(blocks)) return ''
@@ -17,7 +19,7 @@ function toPlainText(blocks: unknown): string {
 export function Faq({section}: {section: FaqSection}) {
   const {heading, emitStructuredData, appearance} = section
   const items = section.items ?? []
-  const tone = appearance?.tone
+  const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
   const rule = toneRule(tone)
 
@@ -28,8 +30,8 @@ export function Faq({section}: {section: FaqSection}) {
           '@type': 'FAQPage',
           mainEntity: items.map((i) => ({
             '@type': 'Question',
-            name: i.question,
-            acceptedAnswer: {'@type': 'Answer', text: toPlainText(i.answer)},
+            name: stegaClean(i.question),
+            acceptedAnswer: {'@type': 'Answer', text: stegaClean(toPlainText(i.answer))},
           })),
         }
       : null

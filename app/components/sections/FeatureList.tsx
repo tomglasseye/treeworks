@@ -3,6 +3,7 @@ import {Figure} from '../ui/Figure'
 import {Prose} from '../ui/Prose'
 import {Button} from '../ui/Button'
 import {Section as Wrapper, toneMuted, toneRule} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 /**
  * The workhorse. Four layouts over one shape, absorbing every repeating
@@ -16,9 +17,10 @@ export function FeatureList({
   section: FeatureListSection
   settings?: SiteSettings
 }) {
-  const {eyebrow, heading, intro, layout = 'alternating', appearance} = section
+  const {eyebrow, heading, intro, appearance} = section
+  const layout = opt(section.layout) ?? 'alternating'
   const items = section.items ?? []
-  const tone = appearance?.tone
+  const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)
   const rule = toneRule(tone)

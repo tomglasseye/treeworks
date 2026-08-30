@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react'
 import type {GallerySection, SiteSettings, InstagramPost, SanityImage} from '~/types'
 import {Figure} from '../ui/Figure'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 const LAYOUTS: Record<string, string> = {
   masonry: 'columns-2 gap-4 md:columns-3 lg:columns-4 [&>*]:mb-4 [&>*]:break-inside-avoid',
@@ -19,7 +20,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
   const {
     heading,
     intro,
-    source = 'instagram',
+
     limit = 12,
     showCaptions,
     linkPostsToInstagram = true,
@@ -32,7 +33,10 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
   const images = section.images ?? []
   const fallbackImages = section.fallbackImages ?? []
 
-  const tone = appearance?.tone
+  const source = opt(section.source) ?? 'instagram'
+  const layoutKey = opt(section.layout) ?? 'masonry'
+
+  const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)
 
@@ -57,8 +61,8 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
 
   const useSanityImages = source === 'sanity' || failed || posts?.length === 0
   const sanityList: SanityImage[] = source === 'sanity' ? images : fallbackImages
-  const containerClass = LAYOUTS[layout] ?? LAYOUTS.masonry
-  const itemClass = layout === 'strip' ? 'w-[70vw] shrink-0 snap-start md:w-[22rem]' : ''
+  const containerClass = LAYOUTS[layoutKey] ?? LAYOUTS.masonry
+  const itemClass = layoutKey === 'strip' ? 'w-[70vw] shrink-0 snap-start md:w-[22rem]' : ''
 
   return (
     <Wrapper appearance={appearance}>

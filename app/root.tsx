@@ -5,9 +5,24 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
+  useRouteLoaderData,
 } from 'react-router'
+import {Suspense, lazy} from 'react'
 import type {Route} from './+types/root'
 import stylesheet from './app.css?url'
+import {isPreviewEnabled} from './sanity/preview.server'
+
+// Visual editing ships only to editors in draft mode, never to visitors.
+const VisualEditing = lazy(() =>
+  import('./components/VisualEditing').then((m) => ({default: m.VisualEditing})),
+)
+const ExitPreview = lazy(() =>
+  import('./components/VisualEditing').then((m) => ({default: m.ExitPreview})),
+)
+
+export async function loader({request}: Route.LoaderArgs) {
+  return {preview: await isPreviewEnabled(request)}
+}
 
 export const links: Route.LinksFunction = () => [
   {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
@@ -20,6 +35,7 @@ export const links: Route.LinksFunction = () => [
 ]
 
 export function Layout({children}: {children: React.ReactNode}) {
+  const data = useRouteLoaderData<typeof loader>('root')
   return (
     <html lang="en-GB">
       <head>
@@ -28,7 +44,7 @@ export function Layout({children}: {children: React.ReactNode}) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body data-preview={data?.preview ? 'true' : undefined}>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-input focus:bg-bark focus:px-4 focus:py-2 focus:text-bone"
@@ -43,8 +59,18 @@ export function Layout({children}: {children: React.ReactNode}) {
   )
 }
 
-export default function App() {
-  return <Outlet />
+export default function App({loaderData}: Route.ComponentProps) {
+  return (
+    <>
+      <Outlet />
+      {loaderData?.preview ? (
+        <Suspense fallback={null}>
+          <VisualEditing />
+          <ExitPreview />
+        </Suspense>
+      ) : null}
+    </>
+  )
 }
 
 export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {

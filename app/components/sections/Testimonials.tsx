@@ -1,5 +1,6 @@
 import type {TestimonialsSection, Testimonial} from '~/types'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 function Stars({rating}: {rating?: number}) {
   if (!rating) return null
@@ -18,9 +19,11 @@ function formatDate(date?: string) {
 }
 
 export function Testimonials({section}: {section: TestimonialsSection}) {
-  const {heading, layout = 'grid', limit, mode, appearance} = section
+  const {heading, limit, appearance} = section
+  const layout = opt(section.layout) ?? 'grid'
+  const mode = opt(section.mode)
   const items = section.items ?? []
-  const tone = appearance?.tone
+  const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)
 

@@ -2,17 +2,19 @@ import type {HeroSection, SiteSettings} from '~/types'
 import {Figure} from '../ui/Figure'
 import {ButtonRow} from '../ui/Button'
 import {Section as Wrapper} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 /**
  * Three layouts. `full` is the Solterra move: a full-bleed image inset from the
  * viewport with a panel radius, so the page ground frames the photograph.
  */
 export function Hero({section, settings}: {section: HeroSection; settings?: SiteSettings}) {
-  const {layout = 'full', eyebrow, heading, standfirst, image, buttons, appearance} = section
+  const {eyebrow, heading, standfirst, image, buttons, appearance} = section
+  const layout = opt(section.layout) ?? 'full'
 
   if (layout === 'full') {
     return (
-      <section id={appearance?.anchorId} className="bg-bone pt-4">
+      <section id={opt(appearance?.anchorId)} className="bg-bone pt-4">
         <div className="u-container">
           <div className="relative overflow-hidden rounded-panel">
             <Figure

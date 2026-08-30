@@ -2,6 +2,7 @@ import type {StatementSection, SiteSettings} from '~/types'
 import {Prose} from '../ui/Prose'
 import {ButtonRow} from '../ui/Button'
 import {Section as Wrapper} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 /**
  * Asymmetric: small lead-in left, large serif statement right with italic
@@ -9,7 +10,7 @@ import {Section as Wrapper} from '../ui/Section'
  */
 export function Statement({section, settings}: {section: StatementSection; settings?: SiteSettings}) {
   const {leadIn, statement, buttons, appearance} = section
-  const onDark = appearance?.tone === 'bark'
+  const onDark = opt(appearance?.tone) === 'bark'
 
   return (
     <Wrapper appearance={appearance}>

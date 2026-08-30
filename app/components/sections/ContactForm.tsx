@@ -2,6 +2,7 @@ import {useState} from 'react'
 import type {ContactFormSection, SiteSettings} from '~/types'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
 import {formatAddress} from './ContactDetails'
+import {opt, optList} from '~/lib/stega'
 
 /** Field ids here MUST match public/__forms.html. `npm run check:forms` enforces it. */
 const FIELD_LABELS: Record<string, string> = {
@@ -38,10 +39,12 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
   } = section
 
   // GROQ sends null for absent arrays, so coalesce rather than default.
-  const fields = section.fields ?? ['name', 'email', 'phone', 'message']
-  const serviceOptions = section.serviceOptions ?? []
+  // Cleaned: these drive .includes()/.filter() and become input name attributes.
+  const fields = section.fields ? optList(section.fields) : ['name', 'email', 'phone', 'message']
+  const serviceOptions = optList(section.serviceOptions)
+  const netlifyFormName = opt(formName) ?? 'contact'
 
-  const tone = appearance?.tone
+  const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)
 
@@ -100,14 +103,14 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
           {intro ? <p className={`mt-4 max-w-[52ch] text-lg ${muted}`}>{intro}</p> : null}
 
           <form
-            name={formName}
+            name={netlifyFormName}
             method="POST"
             data-netlify="true"
             netlify-honeypot="bot-field"
             onSubmit={handleSubmit}
             className="mt-10 grid gap-5"
           >
-            <input type="hidden" name="form-name" value={formName} />
+            <input type="hidden" name="form-name" value={netlifyFormName} />
             <p className="hidden">
               <label>
                 Leave this field empty: <input name="bot-field" tabIndex={-1} autoComplete="off" />

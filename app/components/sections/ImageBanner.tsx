@@ -1,5 +1,6 @@
 import type {ImageBannerSection} from '~/types'
 import {Figure} from '../ui/Figure'
+import {opt} from '~/lib/stega'
 
 const HEIGHTS: Record<string, string> = {
   short: 'h-[32vh] min-h-[16rem]',
@@ -11,7 +12,7 @@ export function ImageBanner({section}: {section: ImageBannerSection}) {
   const {image, height = 'medium', overlayText, appearance} = section
 
   return (
-    <section id={appearance?.anchorId} className="bg-bone py-4">
+    <section id={opt(appearance?.anchorId)} className="bg-bone py-4">
       <div className="u-container">
         <div className="relative overflow-hidden rounded-panel">
           <Figure

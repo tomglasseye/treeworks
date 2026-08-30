@@ -1,13 +1,15 @@
 import type {CallToActionSection, SiteSettings} from '~/types'
 import {ButtonRow} from '../ui/Button'
+import {opt} from '~/lib/stega'
 
 /**
  * The band that was hand-repeated on nine of the eleven old pages.
  * `urgent` covers the separate 24-hour emergency call-out block.
  */
 export function CallToAction({section, settings}: {section: CallToActionSection; settings?: SiteSettings}) {
-  const {heading, body, buttons, tone = 'standard', showPhone, appearance} = section
-  const urgent = tone === 'urgent'
+  const {heading, body, buttons, showPhone, appearance} = section
+  const urgent = opt(section.tone) === 'urgent'
+  const panelTone = opt(appearance?.tone)
   const phone = settings?.emergencyPhone || settings?.phone
 
   const panel = urgent
@@ -17,7 +19,7 @@ export function CallToAction({section, settings}: {section: CallToActionSection;
       : 'bg-lichen text-bark'
 
   return (
-    <section id={appearance?.anchorId} className="bg-bone py-12 md:py-section-tight">
+    <section id={opt(appearance?.anchorId)} className="bg-bone py-12 md:py-section-tight">
       <div className="u-container">
         <div className={`rounded-panel px-6 py-12 md:px-14 md:py-16 ${panel}`}>
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto] lg:gap-16">

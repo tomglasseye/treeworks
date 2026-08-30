@@ -84,6 +84,68 @@ choice. If you'd rather not pay a third party at all, switch the gallery section
 **source** to "Images managed here" and upload photos in Studio — the same component
 renders both, no code change.
 
+## Live preview (Presentation)
+
+Open Studio → **Presentation**. The site renders in an iframe beside the content,
+edits appear as you type, and clicking anything in the preview jumps to that field.
+
+**There is no port to configure.** That is deliberate. The usual setup runs Studio on
+:3333 and the site on :5173, which means a `previewUrl.origin`, a CORS entry, and two
+dev servers that have to agree — and it all breaks again in production. Here the Studio
+is *inside* the site at `/studio`, so the preview target is the same origin the Studio is
+already on. `previewUrl.origin` is left undefined on purpose: Presentation then uses its
+own origin, which is correct in dev, on a Netlify deploy preview, and in production,
+without anything being set.
+
+The one exception is a standalone Studio at `*.sanity.studio`, which genuinely is a
+different host. Only then set `SANITY_STUDIO_PREVIEW_ORIGIN` (and add that origin to
+CORS). If you skip the standalone deploy, you never touch this.
+
+### What it needs
+
+One thing: a **Viewer** token, so the server can read drafts.
+sanity.io/manage → the project → API → Tokens → Add token → Viewer. Then:
+
+```
+SANITY_API_READ_TOKEN=<the token>
+```
+
+in `.env` locally and in Netlify's environment variables. Without it, `/api/preview/enable`
+returns a 501 telling you exactly that, and the site keeps serving published content.
+
+### How draft mode works
+
+React Router has no built-in `draftMode()`, so:
+
+- Presentation calls `/api/preview/enable` with a single-use secret it just wrote to the dataset
+- we validate that secret against the Content Lake — not against the URL — and set an
+  httpOnly, signed cookie
+- loaders read the cookie and switch to `perspective: 'drafts'` with stega enabled
+- `/api/preview/disable` clears it; an **Exit preview** button appears if you opened a
+  preview link outside the Studio
+
+Anything that fails validation fails *closed*: no cookie, no drafts. A visitor cannot
+opt themselves into unpublished content.
+
+Set `PREVIEW_COOKIE_SECRET` in production to sign the cookie with something other than
+the dev default.
+
+### The stega trap
+
+In preview, Sanity encodes invisible characters into every string so it can map text back
+to a field. An 11-character `"alternating"` becomes ~750 characters. That means
+`layout === 'alternating'` is **false** in preview, and `TONE[tone]` misses — so pages
+silently render with default layouts, in preview only.
+
+`app/lib/stega.ts` exports `opt()` for this. The rule:
+
+- **clean** anything you compare, switch on, or use as an object key or HTML id
+- **clean** anything going into `<head>` or JSON-LD — stega in a meta description shows
+  up in Google's snippet
+- **never** clean text you render, or click-to-edit stops working
+
+Every existing section already does this. New ones should too.
+
 ## Publishing the Studio
 
 Two separate things, both run from this repo with the Sanity CLI (they need your

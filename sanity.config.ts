@@ -1,8 +1,10 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
+import {presentationTool} from 'sanity/presentation'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './studio/schemaTypes'
 import {structure, SINGLETONS} from './studio/structure'
+import {resolve} from './studio/presentation/resolve'
 
 /**
  * One config, two build toolchains.
@@ -23,6 +25,20 @@ const dataset = env.SANITY_STUDIO_DATASET ?? env.VITE_SANITY_DATASET ?? 'product
  */
 const basePath = env.SANITY_STUDIO_BASE_PATH ?? '/studio'
 
+/**
+ * Preview origin for the Presentation tool.
+ *
+ * Because the Studio is embedded in the site itself, the preview target is the
+ * *same origin* the Studio is already running on — so there is no second dev
+ * server and no port to keep in sync. Leaving `origin` undefined makes
+ * Presentation use its own origin, which is what we want in dev and on Netlify.
+ *
+ * The only case that needs an explicit origin is a standalone Studio deployed
+ * to *.sanity.studio, which genuinely is a different host. Set
+ * SANITY_STUDIO_PREVIEW_ORIGIN then.
+ */
+const previewOrigin = env.SANITY_STUDIO_PREVIEW_ORIGIN
+
 export default defineConfig({
   name: 'treeworks',
   title: 'Treeworks Cornwall',
@@ -30,7 +46,20 @@ export default defineConfig({
   dataset,
   basePath,
 
-  plugins: [structureTool({structure}), visionTool()],
+  plugins: [
+    presentationTool({
+      resolve,
+      previewUrl: {
+        ...(previewOrigin ? {origin: previewOrigin} : {}),
+        previewMode: {
+          enable: '/api/preview/enable',
+          disable: '/api/preview/disable',
+        },
+      },
+    }),
+    structureTool({structure}),
+    visionTool(),
+  ],
 
   schema: {
     types: schemaTypes,

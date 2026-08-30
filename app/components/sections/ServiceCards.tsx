@@ -2,11 +2,12 @@ import {Link} from 'react-router'
 import type {ServiceCardsSection} from '~/types'
 import {Figure} from '../ui/Figure'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 export function ServiceCards({section}: {section: ServiceCardsSection}) {
   const {heading, intro, appearance} = section
   const cards = section.cards ?? []
-  const tone = appearance?.tone
+  const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
   const muted = toneMuted(tone)
 

@@ -3,11 +3,12 @@ import {Figure} from '../ui/Figure'
 import {Prose} from '../ui/Prose'
 import {ButtonRow} from '../ui/Button'
 import {Section as Wrapper} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 export function TextWithImage({section, settings}: {section: TextWithImageSection; settings?: SiteSettings}) {
-  const {eyebrow, heading, body, image, imagePosition = 'right', buttons, appearance} = section
-  const onDark = appearance?.tone === 'bark'
-  const imageFirst = imagePosition === 'left'
+  const {eyebrow, heading, body, image, buttons, appearance} = section
+  const onDark = opt(appearance?.tone) === 'bark'
+  const imageFirst = opt(section.imagePosition) === 'left'
 
   return (
     <Wrapper appearance={appearance}>

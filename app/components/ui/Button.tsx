@@ -1,5 +1,6 @@
 import {Link} from 'react-router'
 import type {Cta, SiteSettings, Tone} from '~/types'
+import {opt} from '~/lib/stega'
 
 type Props = {
   cta?: Cta
@@ -58,7 +59,7 @@ export function Button({cta, settings, tone, className = ''}: Props) {
   if (!cta?.label) return null
 
   const href = resolveHref(cta, settings)
-  const classes = `${classesFor(cta.variant ?? 'primary', tone)} ${className}`
+  const classes = `${classesFor(opt(cta.variant) ?? 'primary', opt(tone))} ${className}`
   const isInternal = href.startsWith('/') && !href.startsWith('//')
 
   if (isInternal) {

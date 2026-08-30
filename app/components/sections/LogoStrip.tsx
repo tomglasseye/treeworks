@@ -1,11 +1,12 @@
 import type {LogoStripSection} from '~/types'
 import {Figure} from '../ui/Figure'
 import {Section as Wrapper} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 export function LogoStrip({section}: {section: LogoStripSection}) {
   const {heading, appearance} = section
   const logos = section.logos ?? []
-  const onDark = appearance?.tone === 'bark'
+  const onDark = opt(appearance?.tone) === 'bark'
 
   return (
     <Wrapper appearance={appearance}>

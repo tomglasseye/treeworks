@@ -1,5 +1,7 @@
 import type {Route} from './+types/page'
 import {loadQuery} from '~/sanity/loader.server'
+import {isPreviewEnabled, queryOptions} from '~/sanity/preview.server'
+import {useQuery} from '~/sanity/loader'
 import {SLUG_QUERY, SITE_QUERY} from '~/sanity/queries'
 import {SectionRenderer} from '~/components/SectionRenderer'
 import {SiteLayout} from '~/components/SiteLayout'
@@ -7,27 +9,39 @@ import {Prose} from '~/components/ui/Prose'
 import {buildMeta} from '~/seo'
 import type {PageDoc, SiteData} from '~/types'
 
-export async function loader({params}: Route.LoaderArgs) {
-  const slug = params.slug
+export async function loader({request, params}: Route.LoaderArgs) {
+  const preview = await isPreviewEnabled(request)
+  const options = queryOptions(preview)
+  const queryParams = {slug: params.slug}
 
   const [page, site] = await Promise.all([
-    loadQuery<PageDoc | null>(SLUG_QUERY, {slug}),
-    loadQuery<SiteData>(SITE_QUERY, {}),
+    loadQuery<PageDoc | null>(SLUG_QUERY, queryParams, options),
+    loadQuery<SiteData>(SITE_QUERY, {}, options),
   ])
 
   if (!page.data) {
     throw new Response('Not found', {status: 404})
   }
 
-  return {page: page.data, site: site.data}
+  return {
+    initial: page,
+    site: site.data,
+    query: SLUG_QUERY,
+    params: queryParams,
+    preview,
+  }
 }
 
 export function meta({loaderData}: Route.MetaArgs) {
-  return buildMeta(loaderData?.page, loaderData?.site?.settings)
+  return buildMeta(loaderData?.initial?.data, loaderData?.site?.settings)
 }
 
 export default function Page({loaderData}: Route.ComponentProps) {
-  const {page, site} = loaderData
+  const {initial, site, query, params, preview} = loaderData
+
+  const {data} = useQuery<PageDoc | null>(query, params, {initial})
+  const page = (preview ? (data ?? initial.data) : initial.data) as PageDoc
+
   const isLocation = page._type === 'locationPage'
 
   return (

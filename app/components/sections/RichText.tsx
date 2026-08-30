@@ -1,10 +1,12 @@
 import type {RichTextSection} from '~/types'
 import {Prose} from '../ui/Prose'
 import {Section as Wrapper} from '../ui/Section'
+import {opt} from '~/lib/stega'
 
 export function RichText({section}: {section: RichTextSection}) {
-  const {heading, body, width = 'narrow', appearance} = section
-  const onDark = appearance?.tone === 'bark'
+  const {heading, body, appearance} = section
+  const width = opt(section.width) ?? 'narrow'
+  const onDark = opt(appearance?.tone) === 'bark'
 
   return (
     <Wrapper appearance={appearance}>
