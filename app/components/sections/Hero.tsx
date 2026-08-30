@@ -13,22 +13,35 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
   const layout = opt(section.layout) ?? 'full'
 
   if (layout === 'full') {
+    // The height lives on the container, not the image. Otherwise a hero with no
+    // image yet collapses to nothing and paints bone-coloured text on a bone
+    // background — invisible. Falling back to the dark panel keeps it legible.
+    const hasImage = Boolean(image?.asset ?? image?.url)
+
     return (
       <section id={opt(appearance?.anchorId)} className="bg-bone pt-4">
         <div className="u-container">
-          <div className="relative overflow-hidden rounded-panel">
-            <Figure
-              image={image}
-              priority
-              width={2000}
-              sizes="100vw"
-              rounded={false}
-              className="h-[60vh] min-h-[26rem] w-full md:h-[78vh]"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-bark/85 via-bark/35 to-bark/10"
-            />
+          <div
+            className={`relative h-[60vh] min-h-[26rem] overflow-hidden rounded-panel md:h-[78vh] ${
+              hasImage ? '' : 'bg-bark'
+            }`}
+          >
+            {hasImage ? (
+              <>
+                <Figure
+                  image={image}
+                  priority
+                  width={2000}
+                  sizes="100vw"
+                  rounded={false}
+                  className="absolute inset-0 h-full w-full"
+                />
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-t from-bark/85 via-bark/35 to-bark/10"
+                />
+              </>
+            ) : null}
             <div className="absolute inset-0 flex items-end">
               <div className="w-full p-6 pb-10 md:p-14 md:pb-16">
                 {eyebrow ? <p className="u-eyebrow mb-4 text-bone/80">{eyebrow}</p> : null}

@@ -80,6 +80,27 @@
     }
   }
 
+  /* The Studio route fills the viewport and brings its own design system.
+     Keep the site's base typography and colours out of it. */
+  html:has(body[data-studio]),
+  body[data-studio] {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body[data-studio] {
+    background: revert;
+    color: revert;
+    font-family: revert;
+    font-size: revert;
+    line-height: revert;
+  }
+
+  body[data-studio] :is(h1, h2, h3, h4, h5) {
+    font-family: inherit;
+    font-weight: revert;
+  }
+
   body {
     background-color: var(--color-bone);
     color: var(--color-ink);
