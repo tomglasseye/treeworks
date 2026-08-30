@@ -1,0 +1,80 @@
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  isRouteErrorResponse,
+} from 'react-router'
+import type {Route} from './+types/root'
+import stylesheet from './app.css?url'
+
+export const links: Route.LinksFunction = () => [
+  {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
+  {rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous'},
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Mulish:ital,wght@0,300..800;1,300..800&display=swap',
+  },
+  {rel: 'stylesheet', href: stylesheet},
+]
+
+export function Layout({children}: {children: React.ReactNode}) {
+  return (
+    <html lang="en-GB">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-input focus:bg-bark focus:px-4 focus:py-2 focus:text-bone"
+        >
+          Skip to content
+        </a>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+
+export default function App() {
+  return <Outlet />
+}
+
+export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
+  let title = 'Something went wrong'
+  let message = 'Please try again, or call us on 07880 335025.'
+
+  if (isRouteErrorResponse(error)) {
+    title = error.status === 404 ? 'Page not found' : `${error.status}`
+    message =
+      error.status === 404
+        ? 'That page has moved or never existed. Try the menu, or give us a call.'
+        : error.statusText || message
+  }
+
+  return (
+    <main id="main" className="u-container flex min-h-screen flex-col justify-center py-section">
+      <p className="u-eyebrow text-muted">Treeworks Cornwall</p>
+      <h1 className="u-h2 mt-4 text-bark">{title}</h1>
+      <p className="mt-4 max-w-prose text-muted">{message}</p>
+      <a
+        href="/"
+        className="mt-8 inline-flex w-fit rounded-pill bg-bark px-6 py-3 text-bone transition-colors hover:bg-bark-soft"
+      >
+        Back to the homepage
+      </a>
+      {import.meta.env.DEV && error instanceof Error ? (
+        <pre className="mt-8 overflow-x-auto rounded-panel bg-lichen-soft p-4 text-sm">
+          {error.stack}
+        </pre>
+      ) : null}
+    </main>
+  )
+}

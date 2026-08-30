@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Treeworks design tokens.
+   Derived from solterra.ca's measured system, shifted warmer and darker —
+   Cornish woodland rather than Québec agronomy. See docs/design-tokens.md.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Colour ------------------------------------------------------------- */
+  --color-bark: #2c3a2a;      /* primary dark: footer, dark panels, display */
+  --color-bark-soft: #3a4a36; /* hover on bark */
+  --color-canopy: #44573f;    /* buttons, links */
+  --color-lichen: #cfd6bc;    /* light panel tint */
+  --color-lichen-soft: #e2e7d5;
+  --color-bone: #fbf9f1;      /* page ground */
+  --color-sap: #b4703a;       /* warm accent — emergency only */
+  --color-sap-soft: #c98a52;
+  --color-ink: #23291f;       /* body text */
+  --color-muted: #6b7361;     /* secondary text, captions */
+  --color-rule: #ddd9c9;      /* hairlines */
+
+  /* Type --------------------------------------------------------------- */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Mulish", ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: 4.5rem;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-4xl: 3.375rem;
+  --text-4xl--line-height: 1.02;
+  --text-4xl--letter-spacing: -0.015em;
+  --text-3xl: 2.5rem;
+  --text-3xl--line-height: 1.15;
+  --text-2xl: 2rem;
+  --text-2xl--line-height: 1.2;
+  --text-xl: 1.5rem;
+  --text-xl--line-height: 1.25;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.45;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.6;
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.12em;
+
+  /* Shape and rhythm --------------------------------------------------- */
+  --radius-panel: 1rem;
+  --radius-input: 0.5rem;
+  --radius-pill: 100px;
+
+  --spacing-section: 8rem;
+  --spacing-section-tight: 4rem;
+  --spacing-gutter: 1.5rem;
+
+  --container-site: 90rem;
+}
+
+/* Fluid display sizes — 72px must never reach a 390px viewport. */
+@layer base {
+  :root {
+    --step-display: clamp(2.5rem, 1.4rem + 5.2vw, 4.5rem);
+    --step-4xl: clamp(2rem, 1.3rem + 3.4vw, 3.375rem);
+    --step-3xl: clamp(1.75rem, 1.35rem + 1.9vw, 2.5rem);
+    --step-2xl: clamp(1.5rem, 1.28rem + 1.05vw, 2rem);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-bone);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Every weight is 400. The size does the work — that is the whole look. */
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-optical-sizing: auto;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-canopy);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-lichen);
+    color: var(--color-bark);
+  }
+}
+
+@layer components {
+  .u-display { font-size: var(--step-display); line-height: 1.05; letter-spacing: -0.02em; }
+  .u-h2      { font-size: var(--step-4xl);     line-height: 1.02; letter-spacing: -0.015em; }
+  .u-h3      { font-size: var(--step-3xl);     line-height: 1.15; }
+  .u-h4      { font-size: var(--step-2xl);     line-height: 1.2; }
+
+  .u-eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--text-eyebrow);
+    font-weight: 700;
+    letter-spacing: var(--text-eyebrow--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* Page gutter + max measure, used by every section. */
+  .u-container {
+    width: 100%;
+    max-width: var(--container-site);
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+  @media (min-width: 64rem) {
+    .u-container { padding-inline: 3rem; }
+  }
+
+  .u-prose :where(p, ul, ol) { margin-block: 1em; }
+  .u-prose :where(ul) { list-style: disc; padding-inline-start: 1.25em; }
+  .u-prose :where(ol) { list-style: decimal; padding-inline-start: 1.25em; }
+  .u-prose :where(li) { margin-block: 0.35em; }
+  .u-prose :where(a) { text-decoration: underline; text-underline-offset: 0.2em; }
+  .u-prose :where(h2) { font-size: var(--step-3xl); margin-block: 1.4em 0.5em; }
+  .u-prose :where(h3) { font-size: var(--text-xl); margin-block: 1.3em 0.4em; }
+  .u-prose :where(blockquote) {
+    border-inline-start: 2px solid var(--color-rule);
+    padding-inline-start: 1.25em;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-style: italic;
+  }
+}

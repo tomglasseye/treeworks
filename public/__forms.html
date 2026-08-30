@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Netlify form definitions</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <!--
+      Netlify finds forms by parsing static HTML at deploy time. An SSR app never
+      emits any, so this file exists purely for the build-time parser. It is not
+      linked from anywhere and is marked noindex.
+
+      Every field here must match the inputs rendered by
+      app/components/sections/ContactForm.tsx — `npm run check:forms` fails the
+      build if they drift apart.
+    -->
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <input type="text" name="bot-field" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="postcode" />
+      <input type="text" name="service" />
+      <textarea name="message"></textarea>
+      <input type="text" name="source" />
+    </form>
+  </body>
+</html>
