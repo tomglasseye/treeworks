@@ -36,9 +36,21 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
                   rounded={false}
                   className="absolute inset-0 h-full w-full"
                 />
+                {/*
+                  Two scrims, not one. Editors upload whatever photo they have,
+                  and a bright one (sunlit canopy, snow, pale sky) leaves white
+                  display type barely legible. The vertical scrim anchors the
+                  bottom where the text sits; the horizontal one protects the
+                  left column on wide screens while leaving the right of the
+                  image visible.
+                */}
                 <div
                   aria-hidden
-                  className="absolute inset-0 bg-gradient-to-t from-bark/85 via-bark/35 to-bark/10"
+                  className="absolute inset-0 bg-gradient-to-t from-bark/90 via-bark/45 to-bark/15"
+                />
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-r from-bark/70 via-bark/20 to-transparent md:to-transparent"
                 />
               </>
             ) : null}
