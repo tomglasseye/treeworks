@@ -23,8 +23,23 @@ export const figure = defineType({
     }),
     defineField({name: 'decorative', title: 'Decorative only', type: 'boolean', initialValue: false}),
     defineField({name: 'caption', type: 'string'}),
+    defineField({
+      name: 'placeholder',
+      title: 'Placeholder image',
+      type: 'boolean',
+      description:
+        'Set by scripts/seed-placeholder-image.mjs. Replace this image with a real photo and untick.',
+      initialValue: false,
+      readOnly: true,
+      hidden: ({value}) => !value,
+    }),
   ],
   preview: {
-    select: {media: 'asset', title: 'alt', subtitle: 'caption'},
+    select: {media: 'asset', title: 'alt', subtitle: 'caption', placeholder: 'placeholder'},
+    prepare: ({media, title, subtitle, placeholder}) => ({
+      media,
+      title: placeholder ? 'Placeholder image' : (title ?? 'Image'),
+      subtitle: placeholder ? 'Replace with a real photo' : subtitle,
+    }),
   },
 })

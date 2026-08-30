@@ -84,6 +84,26 @@ choice. If you'd rather not pay a third party at all, switch the gallery section
 **source** to "Images managed here" and upload photos in Studio — the same component
 renders both, no code change.
 
+## Placeholder images
+
+Nothing has real photography yet. To fill every empty image field with one
+placeholder so the layouts can be judged:
+
+```bash
+npx sanity exec scripts/seed-placeholder-image.mjs --with-user-token -- --dry-run   # see what it would do
+npx sanity exec scripts/seed-placeholder-image.mjs --with-user-token                # do it
+npx sanity exec scripts/seed-placeholder-image.mjs --with-user-token -- --clear     # undo
+```
+
+It uploads the image once, reuses that asset on re-runs, and **only fills fields
+that are still empty** — so as real photos go in, re-running tops up the gaps
+without touching anything you have set.
+
+Every field it writes is tagged `placeholder: true`, which is what `--clear`
+keys off and what makes them obvious in Studio. The alt text is deliberately
+useless ("Placeholder — looking up through a bamboo grove…") so it can't quietly
+ship: alt text describing bamboo on a Cornish tree surgery page helps nobody.
+
 ## Live preview (Presentation)
 
 Open Studio → **Presentation**. The site renders in an iframe beside the content,
