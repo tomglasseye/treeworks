@@ -27,7 +27,7 @@ const VisualEditing = lazy(() =>
 
 export async function loader({request}: Route.LoaderArgs) {
   const preview = await isPreviewEnabled(request)
-  const inPreviewFrame = isInPreviewFrame(request)
+  const inPreviewFrame = await isInPreviewFrame(request)
   // Opening the site normally clears any lingering preview cookie. This is what
   // replaces an exit button: browsing the real site is how you leave preview.
   const headers = await previewExitHeaders(request)

@@ -28,7 +28,7 @@ export async function loader({request}: Route.LoaderArgs) {
     configured: Boolean(token),
     length: token?.length ?? 0,
     fingerprint,
-    inPreviewFrame: isInPreviewFrame(request),
+    inPreviewFrame: await isInPreviewFrame(request),
     draftModeActive: await isPreviewEnabled(request),
     // True when .env has been edited since this process booted (dev only).
     stale: isTokenStale(),

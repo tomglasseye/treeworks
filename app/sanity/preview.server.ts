@@ -28,8 +28,30 @@ export const previewCookie = createCookie('__treeworks_preview', {
   secrets: [process.env.PREVIEW_COOKIE_SECRET ?? 'treeworks-dev-only-secret'],
 })
 
+/**
+ * Marks the browsing context as the Studio's preview iframe, separately from
+ * whether drafts are available.
+ *
+ * Only /api/preview/enable sets it, and only Presentation calls that route, so
+ * its presence is proof we are inside the Studio. It is set even when the read
+ * token is rejected: Presentation's navigation sync and the "drafts are not
+ * loading" notice both need to work in exactly that case.
+ */
+export const previewFrameCookie = createCookie('__treeworks_preview_frame', {
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+  secrets: [process.env.PREVIEW_COOKIE_SECRET ?? 'treeworks-dev-only-secret'],
+})
+
 async function hasPreviewCookie(request: Request) {
   const value = await previewCookie.parse(request.headers.get('Cookie'))
+  return value === true
+}
+
+async function hasPreviewFrameCookie(request: Request) {
+  const value = await previewFrameCookie.parse(request.headers.get('Cookie'))
   return value === true
 }
 
@@ -50,8 +72,13 @@ function isIframeRequest(request: Request) {
  * missing or expired token then costs you draft content, not the whole
  * Presentation connection.
  */
-export function isInPreviewFrame(request: Request): boolean {
-  return isIframeRequest(request)
+export async function isInPreviewFrame(request: Request): Promise<boolean> {
+  // Sec-Fetch-Dest alone is not enough: React Router's client-side loader
+  // fetches send `empty` on the public site too, so testing the header by
+  // itself mounted visual editing for ordinary visitors the moment they
+  // clicked a link. The cookie is what actually distinguishes the Studio.
+  if (!isIframeRequest(request)) return false
+  return (await hasPreviewFrameCookie(request)) || (await hasPreviewCookie(request))
 }
 
 export async function isPreviewEnabled(request: Request): Promise<boolean> {
@@ -68,8 +95,16 @@ export async function isPreviewEnabled(request: Request): Promise<boolean> {
 export async function previewExitHeaders(request: Request): Promise<HeadersInit | undefined> {
   const isTopLevelDocument = request.headers.get('Sec-Fetch-Dest') === 'document'
   if (!isTopLevelDocument) return undefined
-  if (!(await hasPreviewCookie(request))) return undefined
-  return {'Set-Cookie': await previewCookie.serialize('', {maxAge: 0})}
+
+  const cookies: string[] = []
+  if (await hasPreviewCookie(request)) {
+    cookies.push(await previewCookie.serialize('', {maxAge: 0}))
+  }
+  if (await hasPreviewFrameCookie(request)) {
+    cookies.push(await previewFrameCookie.serialize('', {maxAge: 0}))
+  }
+  if (cookies.length === 0) return undefined
+  return cookies.map((value) => ['Set-Cookie', value] as [string, string])
 }
 
 function isAuthError(error: unknown): boolean {
