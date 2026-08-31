@@ -31,8 +31,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
                 <Figure
                   image={image}
                   priority
-                  width={2000}
-                  sizes="100vw"
+                  sizes="(min-width: 1536px) 1400px, 100vw"
                   rounded={false}
                   className="absolute inset-0 h-full w-full"
                 />
@@ -72,7 +71,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
 
   if (layout === 'text') {
     return (
-      <Wrapper appearance={appearance}>
+      <Wrapper appearance={appearance} reveal={false}>
         <div className="max-w-[24ch]">
           {eyebrow ? <p className="u-eyebrow mb-4 text-muted">{eyebrow}</p> : null}
           <h1 className="u-display text-bark">{heading}</h1>
@@ -85,7 +84,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
 
   // split
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} reveal={false}>
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
           {eyebrow ? <p className="u-eyebrow mb-4 text-muted">{eyebrow}</p> : null}
@@ -96,6 +95,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
         <Figure
           image={image}
           priority
+          aspect={4 / 3}
           sizes="(min-width: 1024px) 50vw, 100vw"
           className="aspect-[4/5] lg:aspect-[4/3]"
         />

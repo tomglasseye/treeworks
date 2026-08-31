@@ -132,6 +132,58 @@
 
 @layer components {
   /*
+    Scroll reveal.
+
+    CSS-only, driven by a `data-revealed` attribute a tiny IntersectionObserver
+    sets. Content is fully visible with no JavaScript and under reduced motion —
+    the animation is an enhancement, never a gate on reading the page.
+  */
+  .u-reveal {
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  /*
+    Only hide the element once we know JavaScript is running — the `js` class is
+    set by an inline script in <head>. Without this guard, a failed or blocked
+    bundle would leave the whole page at opacity 0, which is a far worse outcome
+    than no animation.
+  */
+  .js .u-reveal:not([data-revealed='true']):not([data-revealed='skip']) {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js .u-reveal:not([data-revealed]) {
+      opacity: 1;
+      transform: none;
+    }
+    .u-reveal { transition: none; }
+  }
+
+  /* Underline that draws in from the left rather than just appearing. */
+  .u-link {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    text-decoration: none;
+  }
+
+  .u-link:hover,
+  .u-link:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .u-link { transition: none; }
+  }
+
+  /*
     Wood grain. Adapted from the reference site's drifting background lines,
     redrawn as timber grain — the right motif for a tree surgeon.
 

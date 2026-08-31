@@ -21,7 +21,6 @@ export function LogoStrip({section}: {section: LogoStripSection}) {
             <Figure
               image={l.image}
               rounded={false}
-              width={320}
               sizes="200px"
               className="h-14 w-auto"
               imgClassName={`h-14 w-auto object-contain ${onDark ? 'brightness-0 invert' : ''}`}

@@ -4,6 +4,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  data,
   isRouteErrorResponse,
   useLocation,
   useRouteLoaderData,
@@ -11,18 +12,20 @@ import {
 import {Suspense, lazy} from 'react'
 import type {Route} from './+types/root'
 import stylesheet from './app.css?url'
-import {isPreviewEnabled} from './sanity/preview.server'
+import {isInPreviewFrame, isPreviewEnabled, previewExitHeaders} from './sanity/preview.server'
 
-// Visual editing ships only to editors in draft mode, never to visitors.
+// Visual editing ships only inside the Studio's preview iframe, never to visitors.
 const VisualEditing = lazy(() =>
   import('./components/VisualEditing').then((m) => ({default: m.VisualEditing})),
 )
-const ExitPreview = lazy(() =>
-  import('./components/VisualEditing').then((m) => ({default: m.ExitPreview})),
-)
 
 export async function loader({request}: Route.LoaderArgs) {
-  return {preview: await isPreviewEnabled(request)}
+  const preview = await isPreviewEnabled(request)
+  const inPreviewFrame = isInPreviewFrame(request)
+  // Opening the site normally clears any lingering preview cookie. This is what
+  // replaces an exit button: browsing the real site is how you leave preview.
+  const headers = await previewExitHeaders(request)
+  return data({preview, inPreviewFrame}, headers ? {headers} : undefined)
 }
 
 export const links: Route.LinksFunction = () => [
@@ -45,6 +48,11 @@ export function Layout({children}: {children: React.ReactNode}) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Marks that JS is running, so scroll-reveal only hides content it can
+            actually reveal again. Inline and blocking so there is no flash. */}
+        <script
+          dangerouslySetInnerHTML={{__html: "document.documentElement.classList.add('js')"}}
+        />
       </head>
       <body
         data-preview={data?.preview ? 'true' : undefined}
@@ -74,10 +82,9 @@ export default function App({loaderData}: Route.ComponentProps) {
   return (
     <>
       <Outlet />
-      {loaderData?.preview && !isStudio ? (
+      {loaderData?.inPreviewFrame && !isStudio ? (
         <Suspense fallback={null}>
           <VisualEditing />
-          <ExitPreview />
         </Suspense>
       ) : null}
     </>

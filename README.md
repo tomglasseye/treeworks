@@ -193,19 +193,25 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 `401` = token works (Sanity was reached, it just refused the fake secret).
 `503` = token rejected — make a new one. `501` = no token configured.
 
-### How draft mode works
+### Draft mode is confined to the Studio iframe
 
-React Router has no built-in `draftMode()`, so:
+There is no preview mode on the public site and no exit button. Drafts and stega exist
+**only** inside Presentation's iframe:
 
-- Presentation calls `/api/preview/enable` with a single-use secret it just wrote to the dataset
-- we validate that secret against the Content Lake — not against the URL — and set an
-  httpOnly, signed cookie
-- loaders read the cookie and switch to `perspective: 'drafts'` with stega enabled
-- `/api/preview/disable` clears it; an **Exit preview** button appears if you opened a
-  preview link outside the Studio
+- Presentation calls `/api/preview/enable` with a single-use secret it just wrote to the
+  dataset; we validate it against the Content Lake — not the URL — and set an httpOnly,
+  signed session cookie
+- a loader only honours that cookie when `Sec-Fetch-Dest` says the request came from an
+  iframe, so the same browser gets published content in a normal tab
+- opening the site normally **clears** the cookie, which is what replaces an exit button
 
-Anything that fails validation fails *closed*: no cookie, no drafts. A visitor cannot
-opt themselves into unpublished content.
+Two things are deliberately separate. The visual-editing runtime mounts whenever we are
+inside the preview iframe, so Presentation's overlay and navigation connect even without
+a token; drafts additionally need the cookie and a working token. A missing or expired
+token therefore costs you draft content, not the whole Presentation connection.
+
+Validation failures never grant drafts — but they do still redirect to the page, so
+Presentation shows published content rather than a blank pane.
 
 Set `PREVIEW_COOKIE_SECRET` in production to sign the cookie with something other than
 the dev default.

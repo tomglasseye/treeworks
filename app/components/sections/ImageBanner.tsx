@@ -18,8 +18,7 @@ export function ImageBanner({section}: {section: ImageBannerSection}) {
           <Figure
             image={image}
             rounded={false}
-            width={2000}
-            sizes="100vw"
+            sizes="(min-width: 1536px) 1400px, 100vw"
             className={HEIGHTS[height] ?? HEIGHTS.medium}
           />
           {overlayText ? (

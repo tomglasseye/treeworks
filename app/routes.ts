@@ -9,6 +9,9 @@ export default [
   // Server-side Behold proxy for the Instagram gallery.
   route('api/instagram', 'routes/api.instagram.ts'),
 
+  route('sitemap.xml', 'routes/sitemap.xml.ts'),
+  route('robots.txt', 'routes/robots.txt.ts'),
+
   // Presentation tool draft-mode handshake.
   route('api/preview/enable', 'routes/api.preview.enable.ts'),
   route('api/preview/disable', 'routes/api.preview.disable.ts'),

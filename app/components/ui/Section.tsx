@@ -1,4 +1,5 @@
 import type {Appearance, Tone, Spacing, Pattern} from '~/types'
+import {Reveal} from './Reveal'
 import {opt} from '~/lib/stega'
 
 const TONE: Record<Tone, string> = {
@@ -22,11 +23,14 @@ export function Section({
   children,
   className = '',
   as: Tag = 'section',
+  reveal = true,
 }: {
   appearance?: Appearance
   children: React.ReactNode
   className?: string
   as?: 'section' | 'div' | 'footer' | 'header'
+  /** Opt out where the section is already above the fold. */
+  reveal?: boolean
 }) {
   // Cleaned: these index into the TONE/SPACING maps below.
   const tone = (opt(appearance?.tone) ?? 'bone') as Tone
@@ -39,7 +43,9 @@ export function Section({
       data-tone={tone}
       className={`${TONE[tone] ?? TONE.bone} ${SPACING[spacing] ?? SPACING.normal} ${className}`}
     >
-      <div className={`u-container ${pattern === 'grain' ? 'u-grain' : ''}`}>{children}</div>
+      <div className={`u-container ${pattern === 'grain' ? 'u-grain' : ''}`}>
+        {reveal ? <Reveal>{children}</Reveal> : children}
+      </div>
     </Tag>
   )
 }

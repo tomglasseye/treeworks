@@ -44,23 +44,3 @@ export function VisualEditing() {
 
   return null
 }
-
-/**
- * Small escape hatch shown when previewing outside the Studio iframe, so an
- * editor who opened a preview link directly can get back to published content.
- */
-export function ExitPreview() {
-  const inIframe = typeof window !== 'undefined' && window.self !== window.top
-  if (inIframe) return null
-
-  return (
-    <a
-      href={`/api/preview/disable?redirect=${encodeURIComponent(
-        typeof window !== 'undefined' ? window.location.pathname : '/',
-      )}`}
-      className="fixed bottom-4 right-4 z-50 rounded-pill bg-bark px-5 py-2.5 text-sm text-bone no-underline shadow-lg hover:bg-bark-soft"
-    >
-      Exit preview
-    </a>
-  )
-}

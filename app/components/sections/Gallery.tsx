@@ -82,7 +82,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
               key={i}
               image={img}
               className={itemClass}
-              sizes="(min-width: 1024px) 25vw, 50vw"
+              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             />
           ))}
         </div>

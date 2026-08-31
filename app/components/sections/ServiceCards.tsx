@@ -2,6 +2,7 @@ import {Link} from 'react-router'
 import type {ServiceCardsSection} from '~/types'
 import {Figure} from '../ui/Figure'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
+import {Reveal} from '../ui/Reveal'
 import {opt} from '~/lib/stega'
 
 export function ServiceCards({section}: {section: ServiceCardsSection}) {
@@ -23,19 +24,20 @@ export function ServiceCards({section}: {section: ServiceCardsSection}) {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {cards.map((c, i) => {
           return (
+            <Reveal key={c._key ?? i} delay={Math.min(i, 4) * 70} className="h-full">
             <Link
-              key={c._key ?? i}
               to={c.href ?? '#'}
-              className={`group flex flex-col overflow-hidden rounded-panel no-underline transition-colors ${
+              className={`group flex h-full flex-col overflow-hidden rounded-panel no-underline transition-colors ${
                 onDark ? 'bg-bone/10 hover:bg-bone/15' : 'bg-lichen-soft hover:bg-lichen'
               }`}
             >
               <Figure
                 image={c.image}
                 rounded={false}
+                aspect={4 / 3}
                 className="aspect-[4/3] overflow-hidden"
                 imgClassName="transition-transform duration-500 group-hover:scale-[1.03]"
-                sizes="(min-width: 1024px) 33vw, 100vw"
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               />
               <div className="flex flex-1 flex-col p-6">
                 <h3 className={`text-xl font-display ${onDark ? 'text-bone' : 'text-bark'}`}>
@@ -54,6 +56,7 @@ export function ServiceCards({section}: {section: ServiceCardsSection}) {
                 </span>
               </div>
             </Link>
+            </Reveal>
           )
         })}
       </div>
