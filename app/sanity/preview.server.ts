@@ -16,6 +16,26 @@ import {loadQuery, previewAuthClient, publicClient} from './loader.server'
  *     previewExitHeaders() — so there is nothing to leak and no exit button to
  *     press.
  */
+/**
+ * Signing secret for both preview cookies.
+ *
+ * The dev fallback must not survive into production: these cookies are what
+ * grant draft access, and a secret published in the repository would let
+ * anyone forge one. Failing the boot is the right outcome — a site that
+ * silently trusts a known secret is worse than one that will not start.
+ */
+function cookieSecret(): string {
+  const secret = process.env.PREVIEW_COOKIE_SECRET
+  if (secret) return secret
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'PREVIEW_COOKIE_SECRET is not set. Add it to the deploy environment — ' +
+        'it signs the cookies that grant draft access.',
+    )
+  }
+  return 'treeworks-dev-only-secret'
+}
+
 export const previewCookie = createCookie('__treeworks_preview', {
   httpOnly: true,
   // The Studio is embedded at /studio, so the Presentation iframe is
@@ -25,7 +45,7 @@ export const previewCookie = createCookie('__treeworks_preview', {
   secure: process.env.NODE_ENV === 'production',
   path: '/',
   // Session cookie: no maxAge, so it dies with the browser.
-  secrets: [process.env.PREVIEW_COOKIE_SECRET ?? 'treeworks-dev-only-secret'],
+  secrets: [cookieSecret()],
 })
 
 /**
@@ -42,7 +62,7 @@ export const previewFrameCookie = createCookie('__treeworks_preview_frame', {
   sameSite: 'lax',
   secure: process.env.NODE_ENV === 'production',
   path: '/',
-  secrets: [process.env.PREVIEW_COOKIE_SECRET ?? 'treeworks-dev-only-secret'],
+  secrets: [cookieSecret()],
 })
 
 async function hasPreviewCookie(request: Request) {
