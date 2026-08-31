@@ -11,7 +11,7 @@ export function TextWithImage({section, settings}: {section: TextWithImageSectio
   const imageFirst = opt(section.imagePosition) === 'left'
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div className={imageFirst ? 'lg:order-2' : ''}>
           {eyebrow ? (

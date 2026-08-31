@@ -37,7 +37,7 @@ export function Faq({section}: {section: FaqSection}) {
       : null
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       <div className="mx-auto max-w-[76ch]">
         {heading ? (
           <h2 className={`u-h2 mb-12 text-center ${onDark ? 'text-bone' : 'text-bark'}`}>

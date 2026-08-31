@@ -9,7 +9,7 @@ export function RichText({section}: {section: RichTextSection}) {
   const onDark = opt(appearance?.tone) === 'bark'
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       <div className={width === 'narrow' ? 'max-w-[68ch]' : 'max-w-[90ch]'}>
         {heading ? (
           <h2 className={`u-h3 mb-6 ${onDark ? 'text-bone' : 'text-bark'}`}>{heading}</h2>

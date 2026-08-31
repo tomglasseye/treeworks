@@ -3,6 +3,7 @@ import {Figure} from '../ui/Figure'
 import {Prose} from '../ui/Prose'
 import {Button} from '../ui/Button'
 import {Section as Wrapper, toneMuted, toneRule} from '../ui/Section'
+import {Reveal} from '../ui/Reveal'
 import {opt} from '~/lib/stega'
 
 /**
@@ -28,7 +29,7 @@ export function FeatureList({
   const bodyColor = onDark ? 'text-bone/85' : 'text-ink'
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       {eyebrow || heading || intro ? (
         <div className={layout === 'numbered' ? 'mb-14 text-center' : 'mb-14 max-w-[60ch]'}>
           {eyebrow ? <p className={`u-eyebrow mb-4 ${muted}`}>{eyebrow}</p> : null}
@@ -70,12 +71,12 @@ export function FeatureList({
       {layout === 'numbered' ? (
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
           {items.map((item: FeatureItem, i: number) => (
-            <div key={item._key ?? i}>
+            <Reveal key={item._key ?? i} delay={Math.min(i, 3) * 110}>
               <p className={`font-display text-2xl ${muted}`}>{String(i + 1).padStart(2, '0')}</p>
               <hr className={`my-5 border-t ${rule}`} />
               <h3 className={`font-display text-xl ${headingColor}`}>{item.title}</h3>
               <Prose value={item.body} className={`mt-3 text-sm ${muted}`} />
-            </div>
+            </Reveal>
           ))}
         </div>
       ) : null}

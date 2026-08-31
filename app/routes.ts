@@ -14,6 +14,7 @@ export default [
 
   // Presentation tool draft-mode handshake.
   route('api/preview/enable', 'routes/api.preview.enable.ts'),
+  route('api/preview/status', 'routes/api.preview.status.ts'),
   route('api/preview/disable', 'routes/api.preview.disable.ts'),
 
   // Everything else is a Sanity page or location page, resolved by slug.

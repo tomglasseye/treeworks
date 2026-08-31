@@ -9,7 +9,7 @@ export function LogoStrip({section}: {section: LogoStripSection}) {
   const onDark = opt(appearance?.tone) === 'bark'
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       {heading ? (
         <h2 className={`u-h3 mb-12 text-center ${onDark ? 'text-bone' : 'text-bark'}`}>
           {heading}

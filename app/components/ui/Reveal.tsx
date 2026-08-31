@@ -21,9 +21,10 @@ function getObserver() {
         observer?.unobserve(entry.target)
       }
     },
-    // Start the reveal slightly before the element reaches the fold, so it has
-    // finished by the time it is properly in view.
-    {rootMargin: '0px 0px -12% 0px', threshold: 0.05},
+    // Hold off until the element is meaningfully on screen. Firing early meant
+    // the animation finished before it was in view — technically running, but
+    // invisible, which is the same as not having it.
+    {rootMargin: '0px 0px -22% 0px', threshold: 0.1},
   )
   return observer
 }
@@ -35,7 +36,7 @@ export function Reveal({
   className = '',
 }: {
   children: React.ReactNode
-  /** Stagger, in ms. Keep small — anything past ~200ms reads as lag. */
+  /** Stagger, in ms. Keep under ~400ms total or it starts to read as lag. */
   delay?: number
   as?: 'div' | 'li' | 'article' | 'section'
   className?: string

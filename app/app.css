@@ -140,8 +140,8 @@
   */
   .u-reveal {
     transition:
-      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1.05s cubic-bezier(0.22, 1, 0.36, 1);
     transition-delay: var(--reveal-delay, 0ms);
   }
 
@@ -153,7 +153,8 @@
   */
   .js .u-reveal:not([data-revealed='true']):not([data-revealed='skip']) {
     opacity: 0;
-    transform: translateY(14px);
+    /* Far enough to read as movement rather than a flicker. */
+    transform: translateY(32px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -184,28 +185,38 @@
   }
 
   /*
-    Wood grain. Adapted from the reference site's drifting background lines,
-    redrawn as timber grain — the right motif for a tree surgeon.
+    Wood grain — four variants, picked per section.
 
-    Applied as a MASK rather than a background image, so the single SVG picks up
+    Applied as a MASK rather than a background image, so one asset picks up
     whatever colour the section tone needs instead of shipping a light and a
     dark copy.
+
+    Kept deliberately faint: this is a texture you notice only once you look for
+    it. Anything stronger competes with the photography and starts to read as a
+    printing fault rather than timber.
   */
   .u-grain {
     position: relative;
     isolation: isolate;
   }
 
+  /* The grain bleeds -50vw either side; without this the page gains a
+     horizontal scrollbar. The section is full-width anyway, so clipping there
+     still gives edge-to-edge texture. */
+  .u-grain-clip {
+    overflow: hidden;
+  }
+
   .u-grain::before {
     content: "";
     position: absolute;
-    inset: 0;
+    /* Bleed past the container so the grain runs off the edges rather than
+       stopping neatly at the text column. */
+    inset: -10% -50vw;
     z-index: -1;
     pointer-events: none;
     background-color: currentColor;
-    opacity: 0.07;
-    -webkit-mask-image: url("/wood-grain.svg");
-    mask-image: url("/wood-grain.svg");
+    opacity: 0.035;
     -webkit-mask-size: cover;
     mask-size: cover;
     -webkit-mask-position: center;
@@ -214,11 +225,15 @@
     mask-repeat: no-repeat;
   }
 
-  /* Bone is the lightest ground, so the grain needs a touch more presence;
-     on the dark panel it needs less or it reads as noise. */
-  [data-tone='bone'] > .u-grain::before { opacity: 0.06; }
-  [data-tone='lichen'] > .u-grain::before { opacity: 0.09; }
-  [data-tone='bark'] > .u-grain::before { opacity: 0.10; }
+  .u-grain-1::before { -webkit-mask-image: url("/grain/grain-1.svg"); mask-image: url("/grain/grain-1.svg"); }
+  .u-grain-2::before { -webkit-mask-image: url("/grain/grain-2.svg"); mask-image: url("/grain/grain-2.svg"); }
+  .u-grain-3::before { -webkit-mask-image: url("/grain/grain-3.svg"); mask-image: url("/grain/grain-3.svg"); }
+  .u-grain-4::before { -webkit-mask-image: url("/grain/grain-4.svg"); mask-image: url("/grain/grain-4.svg"); }
+
+  /* Tuned per ground: the darker the panel, the less it takes to register. */
+  [data-tone='bone'] .u-grain::before { opacity: 0.045; }
+  [data-tone='lichen'] .u-grain::before { opacity: 0.05; }
+  [data-tone='bark'] .u-grain::before { opacity: 0.055; }
 
   @media (prefers-contrast: more) {
     .u-grain::before { display: none; }

@@ -65,7 +65,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
   const itemClass = layoutKey === 'strip' ? 'w-[70vw] shrink-0 snap-start md:w-[22rem]' : ''
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       {heading || intro ? (
         <div className="mb-12 max-w-[60ch]">
           {heading ? (

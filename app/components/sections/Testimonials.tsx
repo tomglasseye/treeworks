@@ -33,7 +33,7 @@ export function Testimonials({section}: {section: TestimonialsSection}) {
   if (layout === 'single') {
     const t = list[0]
     return (
-      <Wrapper appearance={appearance}>
+      <Wrapper appearance={appearance} grainSeed={section._key}>
         <blockquote className="mx-auto max-w-[46ch] text-center">
           <Stars rating={t.rating} />
           <p className={`u-h3 font-display ${onDark ? 'text-bone' : 'text-bark'}`}>
@@ -49,7 +49,7 @@ export function Testimonials({section}: {section: TestimonialsSection}) {
   }
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       {heading ? (
         <h2 className={`u-h2 mb-14 text-center ${onDark ? 'text-bone' : 'text-bark'}`}>
           {heading}

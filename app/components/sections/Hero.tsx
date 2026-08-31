@@ -71,7 +71,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
 
   if (layout === 'text') {
     return (
-      <Wrapper appearance={appearance} reveal={false}>
+      <Wrapper appearance={appearance} reveal={false} grainSeed={section._key}>
         <div className="max-w-[24ch]">
           {eyebrow ? <p className="u-eyebrow mb-4 text-muted">{eyebrow}</p> : null}
           <h1 className="u-display text-bark">{heading}</h1>
@@ -84,7 +84,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
 
   // split
   return (
-    <Wrapper appearance={appearance} reveal={false}>
+    <Wrapper appearance={appearance} reveal={false} grainSeed={section._key}>
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
           {eyebrow ? <p className="u-eyebrow mb-4 text-muted">{eyebrow}</p> : null}

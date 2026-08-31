@@ -74,7 +74,7 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
 
   if (state === 'sent') {
     return (
-      <Wrapper appearance={appearance}>
+      <Wrapper appearance={appearance} grainSeed={section._key}>
         <div className="mx-auto max-w-[52ch] rounded-panel bg-lichen p-10 text-center">
           <h2 className="u-h3 text-bark">Thank you</h2>
           <p className="mt-4 text-bark/80">
@@ -94,7 +94,7 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
   }
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
         <div>
           {heading ? (

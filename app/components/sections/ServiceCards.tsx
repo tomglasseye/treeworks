@@ -13,7 +13,7 @@ export function ServiceCards({section}: {section: ServiceCardsSection}) {
   const muted = toneMuted(tone)
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       {heading ? (
         <div className="mb-14 max-w-[60ch]">
           <h2 className={`u-h2 ${onDark ? 'text-bone' : 'text-bark'}`}>{heading}</h2>
@@ -24,7 +24,7 @@ export function ServiceCards({section}: {section: ServiceCardsSection}) {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {cards.map((c, i) => {
           return (
-            <Reveal key={c._key ?? i} delay={Math.min(i, 4) * 70} className="h-full">
+            <Reveal key={c._key ?? i} delay={Math.min(i, 4) * 110} className="h-full">
             <Link
               to={c.href ?? '#'}
               className={`group flex h-full flex-col overflow-hidden rounded-panel no-underline transition-colors ${

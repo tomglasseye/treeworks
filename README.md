@@ -110,19 +110,26 @@ it back.
 
 ## Wood grain
 
-`public/wood-grain.svg` — long grain lines that deflect around two knots, with
-concentric rings at each. Generated, not hand-drawn; the script that produced it
-is in the commit history and uses a fixed random seed, so it regenerates
-identically.
+Four variants in `public/grain/`. Generated, not hand-drawn — the script uses a
+fixed seed and Catmull-Rom splines converted to cubic Béziers, which is what
+keeps the lines genuinely smooth. Quadratic curves through midpoints leave a
+faint kink at every control point.
 
-It is applied as a **mask**, not a background image, so one asset picks up
-`currentColor` and works on the light and dark panels alike instead of needing
-two copies. Turn it on per section in Studio: **Appearance → Background pattern →
-Wood grain**. Opacity is tuned per tone (6% on bone, 9% on lichen, 10% on bark)
-and it is removed entirely under `prefers-contrast: more`.
+Turn it on per section in Studio: **Appearance → Background pattern → Wood grain**.
+Which of the four you get is chosen by hashing the section's `_key` — deliberately
+not `Math.random()`, which would mismatch between server and client and reshuffle
+the texture on every reload. Different sections get different grain; the same
+section keeps its own.
 
-This is our own drawing, not the reference site's asset — theirs is a
-topographic contour motif, and grain suits a tree surgeon better anyway.
+Applied as a **mask**, not a background image, so one asset picks up
+`currentColor` and works on the light and dark panels alike. Opacity sits between
+3.5% and 5.5% — it should read as texture you notice only if you look for it.
+Removed entirely under `prefers-contrast: more`.
+
+The grain bleeds `-50vw` either side so it runs to the section edges rather than
+stopping at the text column; the section carries `.u-grain-clip` to contain that,
+without which the page gains a horizontal scrollbar.
+
 
 ## Placeholder images
 

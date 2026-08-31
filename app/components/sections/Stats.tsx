@@ -10,7 +10,7 @@ export function Stats({section}: {section: StatsSection}) {
   const muted = toneMuted(tone)
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       {heading ? (
         <h2 className={`u-h3 mb-12 ${onDark ? 'text-bone' : 'text-bark'}`}>{heading}</h2>
       ) : null}

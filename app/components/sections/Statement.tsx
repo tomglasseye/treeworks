@@ -13,7 +13,7 @@ export function Statement({section, settings}: {section: StatementSection; setti
   const onDark = opt(appearance?.tone) === 'bark'
 
   return (
-    <Wrapper appearance={appearance}>
+    <Wrapper appearance={appearance} grainSeed={section._key}>
       <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
         {leadIn ? (
           <p
