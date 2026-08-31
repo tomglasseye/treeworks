@@ -1,8 +1,8 @@
-import imageUrlBuilder from '@sanity/image-url'
+import {createImageUrlBuilder} from '@sanity/image-url'
 import {client} from './client'
 import type {SanityImage} from '~/types'
 
-const builder = imageUrlBuilder(client)
+const builder = createImageUrlBuilder(client)
 
 // Derived from the builder rather than imported: the type's module path has
 // moved between @sanity/image-url majors, this never breaks.
