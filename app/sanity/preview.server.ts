@@ -1,6 +1,8 @@
+import {createHash} from 'node:crypto'
+import {readFileSync} from 'node:fs'
 import {createCookie} from 'react-router'
 import type {QueryResponseInitial} from '@sanity/react-loader'
-import {loadQuery, publicClient} from './loader.server'
+import {loadQuery, previewAuthClient, publicClient} from './loader.server'
 
 /**
  * Draft mode exists ONLY inside the Studio's Presentation iframe.
@@ -109,4 +111,85 @@ export async function loadContent<T>(
     }
     throw error
   }
+}
+
+export type PreviewTokenStatus =
+  | {ok: true}
+  | {ok: false; reason: 'missing' | 'rejected' | 'stale'; detail?: string}
+
+/** A short hash of a credential, safe to compare and to log. Never the value. */
+export function tokenFingerprint(value: string): string {
+  return createHash('sha256').update(value).digest('hex').slice(0, 10)
+}
+
+/**
+ * The token sitting in .env right now, hashed — which is not necessarily the
+ * one this process is using. Vite reads .env once at boot, so editing it and
+ * reloading the page changes nothing, and the symptom is identical to a bad
+ * credential. Comparing the two hashes tells those apart.
+ *
+ * Development only: in production there is no .env to read and no way to
+ * restart from a browser tab.
+ */
+function envFileFingerprint(): string | null {
+  if (process.env.NODE_ENV === 'production') return null
+  try {
+    for (const line of readFileSync('.env', 'utf8').split(/\r?\n/)) {
+      const trimmed = line.trim()
+      if (!trimmed.startsWith('SANITY_API_READ_TOKEN=')) continue
+      const value = trimmed.slice('SANITY_API_READ_TOKEN='.length).trim().replace(/^["']|["']$/g, '')
+      return value ? tokenFingerprint(value) : null
+    }
+  } catch {
+    // No .env, or not readable from the working directory. Nothing to compare.
+  }
+  return null
+}
+
+/** True when .env holds a different token from the one this process booted with. */
+export function isTokenStale(): boolean {
+  const running = process.env.SANITY_API_READ_TOKEN
+  if (!running) return false
+  const onDisk = envFileFingerprint()
+  return Boolean(onDisk) && onDisk !== tokenFingerprint(running)
+}
+
+let cached: {at: number; result: Promise<PreviewTokenStatus>} | undefined
+const CACHE_MS = 30_000
+
+/**
+ * Can we actually load drafts?
+ *
+ * Presentation fails silently when the token is wrong: the page renders
+ * perfectly from published content, but with no content source map nothing is
+ * clickable and the Studio reports no matching documents. That looks like a
+ * broken Presentation tool rather than a credential problem, so we check up
+ * front and say so in the iframe.
+ *
+ * Cached briefly: this runs on preview-frame requests only, and the answer
+ * cannot change without a restart anyway (env is read once at boot).
+ */
+export function checkPreviewToken(): Promise<PreviewTokenStatus> {
+  if (!process.env.SANITY_API_READ_TOKEN) {
+    return Promise.resolve({ok: false, reason: 'missing'} as const)
+  }
+
+  const now = Date.now()
+  if (cached && now - cached.at < CACHE_MS) return cached.result
+
+  const result = previewAuthClient
+    .fetch('count(*[_id in path("drafts.**")])')
+    .then(() => ({ok: true}) as PreviewTokenStatus)
+    .catch((error: unknown) => {
+      const detail = error instanceof Error ? error.message : String(error)
+      // A network blip should not be cached as a credential failure.
+      if (!isAuthError(error)) cached = undefined
+      // An edited .env that the running process has not seen is a restart, not
+      // a bad token — worth saying, because the two look identical otherwise.
+      const reason = isTokenStale() ? 'stale' : 'rejected'
+      return {ok: false, reason, detail: detail.slice(0, 160)} as PreviewTokenStatus
+    })
+
+  cached = {at: now, result}
+  return result
 }

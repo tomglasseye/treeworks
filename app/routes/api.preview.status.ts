@@ -1,7 +1,11 @@
-import {createHash} from 'node:crypto'
 import type {Route} from './+types/api.preview.status'
 import {previewAuthClient} from '~/sanity/loader.server'
-import {isInPreviewFrame, isPreviewEnabled} from '~/sanity/preview.server'
+import {
+  isInPreviewFrame,
+  isPreviewEnabled,
+  isTokenStale,
+  tokenFingerprint,
+} from '~/sanity/preview.server'
 
 /**
  * Is live preview actually going to work?
@@ -18,7 +22,7 @@ export async function loader({request}: Route.LoaderArgs) {
   // .env file tells you whether the running process has actually picked up an
   // edited .env — env vars are read once at startup, so an unrestarted dev
   // server looks exactly like a bad credential.
-  const fingerprint = token ? createHash('sha256').update(token).digest('hex').slice(0, 10) : null
+  const fingerprint = token ? tokenFingerprint(token) : null
 
   const base = {
     configured: Boolean(token),
@@ -26,6 +30,8 @@ export async function loader({request}: Route.LoaderArgs) {
     fingerprint,
     inPreviewFrame: isInPreviewFrame(request),
     draftModeActive: await isPreviewEnabled(request),
+    // True when .env has been edited since this process booted (dev only).
+    stale: isTokenStale(),
   }
 
   if (!token) {
@@ -53,10 +59,11 @@ export async function loader({request}: Route.LoaderArgs) {
       ...base,
       valid: false,
       error: message.slice(0, 200),
-      verdict:
-        'Sanity rejected the token. Either it was revoked, it belongs to another ' +
-        'project, or the dev server has not been restarted since .env changed — ' +
-        'env vars are read once at startup.',
+      verdict: base.stale
+        ? '.env holds a different token from the one this dev server started with. ' +
+          'Restart it — env vars are read once at startup.'
+        : 'Sanity rejected the token. Either it was revoked or it belongs to ' +
+          'another project.',
     })
   }
 }

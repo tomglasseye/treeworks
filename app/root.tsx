@@ -12,7 +12,13 @@ import {
 import {Suspense, lazy} from 'react'
 import type {Route} from './+types/root'
 import stylesheet from './app.css?url'
-import {isInPreviewFrame, isPreviewEnabled, previewExitHeaders} from './sanity/preview.server'
+import {
+  checkPreviewToken,
+  isInPreviewFrame,
+  isPreviewEnabled,
+  previewExitHeaders,
+} from './sanity/preview.server'
+import {PreviewNotice} from './components/PreviewNotice'
 
 // Visual editing ships only inside the Studio's preview iframe, never to visitors.
 const VisualEditing = lazy(() =>
@@ -25,7 +31,14 @@ export async function loader({request}: Route.LoaderArgs) {
   // Opening the site normally clears any lingering preview cookie. This is what
   // replaces an exit button: browsing the real site is how you leave preview.
   const headers = await previewExitHeaders(request)
-  return data({preview, inPreviewFrame}, headers ? {headers} : undefined)
+
+  // Only inside the Studio iframe, and only far enough to say whether drafts
+  // will load. The underlying error stays on the server; the browser gets a
+  // reason code, not a Sanity message.
+  const token = inPreviewFrame ? await checkPreviewToken() : null
+  const tokenStatus = token && !token.ok ? ({ok: false, reason: token.reason} as const) : null
+
+  return data({preview, inPreviewFrame, tokenStatus}, headers ? {headers} : undefined)
 }
 
 export const links: Route.LinksFunction = () => [
@@ -83,9 +96,12 @@ export default function App({loaderData}: Route.ComponentProps) {
     <>
       <Outlet />
       {loaderData?.inPreviewFrame && !isStudio ? (
-        <Suspense fallback={null}>
-          <VisualEditing />
-        </Suspense>
+        <>
+          <Suspense fallback={null}>
+            <VisualEditing />
+          </Suspense>
+          {loaderData.tokenStatus ? <PreviewNotice status={loaderData.tokenStatus} /> : null}
+        </>
       ) : null}
     </>
   )
