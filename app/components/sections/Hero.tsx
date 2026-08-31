@@ -69,15 +69,26 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
     )
   }
 
+  const onDark = opt(appearance?.tone) === 'bark'
+  const headingColor = onDark ? 'text-bone' : 'text-bark'
+  const supportColor = onDark ? 'text-bone/70' : 'text-muted'
+
   if (layout === 'text') {
     return (
       <Wrapper appearance={appearance} reveal={false} grainSeed={section._key}>
         <div className="max-w-[24ch]">
-          {eyebrow ? <p className="u-eyebrow mb-4 text-muted">{eyebrow}</p> : null}
-          <h1 className="u-display text-bark">{heading}</h1>
+          {eyebrow ? <p className={`u-eyebrow mb-4 ${supportColor}`}>{eyebrow}</p> : null}
+          <h1 className={`u-display ${headingColor}`}>{heading}</h1>
         </div>
-        {standfirst ? <p className="mt-6 max-w-[56ch] text-lg text-muted">{standfirst}</p> : null}
-        <ButtonRow buttons={buttons} settings={settings} className="mt-8" />
+        {standfirst ? (
+          <p className={`mt-6 max-w-[56ch] text-lg ${supportColor}`}>{standfirst}</p>
+        ) : null}
+        <ButtonRow
+          buttons={buttons}
+          settings={settings}
+          tone={appearance?.tone}
+          className="mt-8"
+        />
       </Wrapper>
     )
   }
@@ -87,10 +98,17 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
     <Wrapper appearance={appearance} reveal={false} grainSeed={section._key}>
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
-          {eyebrow ? <p className="u-eyebrow mb-4 text-muted">{eyebrow}</p> : null}
-          <h1 className="u-display text-bark">{heading}</h1>
-          {standfirst ? <p className="mt-6 max-w-[48ch] text-lg text-muted">{standfirst}</p> : null}
-          <ButtonRow buttons={buttons} settings={settings} className="mt-8" />
+          {eyebrow ? <p className={`u-eyebrow mb-4 ${supportColor}`}>{eyebrow}</p> : null}
+          <h1 className={`u-display ${headingColor}`}>{heading}</h1>
+          {standfirst ? (
+            <p className={`mt-6 max-w-[48ch] text-lg ${supportColor}`}>{standfirst}</p>
+          ) : null}
+          <ButtonRow
+            buttons={buttons}
+            settings={settings}
+            tone={appearance?.tone}
+            className="mt-8"
+          />
         </div>
         <Figure
           image={image}

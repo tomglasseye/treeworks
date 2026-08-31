@@ -5,9 +5,16 @@ import {Section as Wrapper, toneMuted} from '../ui/Section'
 import {opt} from '~/lib/stega'
 import {Reveal} from '../ui/Reveal'
 
+/**
+ * Behold's free tier returns six posts, so the grid is built for six: two
+ * columns on mobile (2 x 3) and three from the medium breakpoint up (3 x 2).
+ * A four-column grid would leave a ragged half-empty last row.
+ */
+const MAX_POSTS = 6
+
 const LAYOUTS: Record<string, string> = {
-  masonry: 'columns-2 gap-4 md:columns-3 lg:columns-4 [&>*]:mb-4 [&>*]:break-inside-avoid',
-  grid: 'grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4',
+  grid: 'grid grid-cols-2 gap-4 md:grid-cols-3',
+  masonry: 'columns-2 gap-4 md:columns-3 [&>*]:mb-4 [&>*]:break-inside-avoid',
   strip: 'flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory [scrollbar-width:thin]',
 }
 
@@ -35,7 +42,9 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
   const fallbackImages = section.fallbackImages ?? []
 
   const source = opt(section.source) ?? 'instagram'
-  const layoutKey = opt(section.layout) ?? 'masonry'
+  const layoutKey = opt(section.layout) ?? 'grid'
+  // Clamp regardless of what the schema holds — the feed cannot exceed this.
+  const postLimit = Math.min(limit ?? MAX_POSTS, MAX_POSTS)
 
   const tone = opt(appearance?.tone)
   const onDark = tone === 'bark'
@@ -47,7 +56,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
   useEffect(() => {
     if (source !== 'instagram') return
     let cancelled = false
-    fetch(`/api/instagram?limit=${limit}`)
+    fetch(`/api/instagram?limit=${postLimit}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: {posts: InstagramPost[]}) => {
         if (!cancelled) setPosts(data.posts ?? [])
@@ -58,10 +67,13 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
     return () => {
       cancelled = true
     }
-  }, [source, limit])
+  }, [source, postLimit])
 
   const useSanityImages = source === 'sanity' || failed || posts?.length === 0
-  const sanityList: SanityImage[] = source === 'sanity' ? images : fallbackImages
+  const sanityList: SanityImage[] = (source === 'sanity' ? images : fallbackImages).slice(
+    0,
+    MAX_POSTS,
+  )
   const containerClass = LAYOUTS[layoutKey] ?? LAYOUTS.masonry
   const itemClass = layoutKey === 'strip' ? 'w-[70vw] shrink-0 snap-start md:w-[22rem]' : ''
 
@@ -80,16 +92,19 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
         <div className={containerClass}>
           {sanityList.map((img, i) => (
             <Reveal key={i} delay={Math.min(i, 5) * 80} className={itemClass}>
+              {/* Square, to match the Instagram crops — a grid of mixed ratios
+                  reads as broken rather than varied. */}
               <Figure
                 image={img}
-                sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                aspect={1}
+                sizes="(min-width: 768px) 33vw, 50vw"
               />
             </Reveal>
           ))}
         </div>
       ) : posts === null ? (
         <div className={containerClass} aria-busy="true">
-          {Array.from({length: Math.min(limit, 8)}).map((_, i) => (
+          {Array.from({length: postLimit}).map((_, i) => (
             <div
               key={i}
               className={`aspect-square animate-pulse rounded-panel ${itemClass} ${
@@ -100,7 +115,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
         </div>
       ) : (
         <ul className={containerClass}>
-          {posts.map((post, i) => {
+          {posts.slice(0, postLimit).map((post, i) => {
             const img = (
               <img
                 src={post.thumb}
@@ -109,7 +124,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
                 decoding="async"
                 width={post.width}
                 height={post.height}
-                className="w-full rounded-panel object-cover"
+                className="aspect-square w-full rounded-panel object-cover"
               />
             )
             return (

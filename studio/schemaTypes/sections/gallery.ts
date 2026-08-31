@@ -39,9 +39,11 @@ export const gallery = defineType({
       name: 'limit',
       title: 'How many posts',
       type: 'number',
-      initialValue: 12,
+      initialValue: 6,
       hidden: ({parent}) => parent?.source !== 'instagram',
-      validation: (rule) => rule.min(3).max(50),
+      description:
+        'Behold returns 6 posts on its free tier, so the grid is built for six — three across on desktop, two on mobile. Raise this cap here and in Gallery.tsx if the plan changes.',
+      validation: (rule) => rule.min(2).max(6),
     }),
     defineField({
       name: 'showCaptions',
@@ -77,11 +79,11 @@ export const gallery = defineType({
     defineField({
       name: 'layout',
       type: 'string',
-      initialValue: 'masonry',
+      initialValue: 'grid',
       options: {
         list: [
+          {title: 'Grid (3 across, 2 on mobile)', value: 'grid'},
           {title: 'Masonry', value: 'masonry'},
-          {title: 'Even grid', value: 'grid'},
           {title: 'Wide strip', value: 'strip'},
         ],
       },
@@ -99,7 +101,9 @@ export const gallery = defineType({
     prepare: ({title, source, limit, layout}) => ({
       title: title || 'Gallery',
       subtitle:
-        source === 'sanity' ? `Gallery — managed here, ${layout}` : `Gallery — Instagram, latest ${limit}`,
+        source === 'sanity'
+          ? `Gallery — managed here, ${layout}`
+          : `Gallery — Instagram, latest ${limit ?? 6}`,
       media: ImageIcon,
     }),
   },

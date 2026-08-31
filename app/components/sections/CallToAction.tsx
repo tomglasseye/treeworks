@@ -12,9 +12,12 @@ export function CallToAction({section, settings}: {section: CallToActionSection;
   const panelTone = opt(appearance?.tone)
   const phone = settings?.emergencyPhone || settings?.phone
 
+  // The panel sets its own ground, so text colour follows the PANEL, not the
+  // section tone. Getting this wrong is how you end up with bark on bark.
+  const onDarkPanel = urgent || panelTone === 'bark'
   const panel = urgent
     ? 'bg-sap text-bone'
-    : appearance?.tone === 'bark'
+    : panelTone === 'bark'
       ? 'bg-bark text-bone'
       : 'bg-lichen text-bark'
 
@@ -27,11 +30,13 @@ export function CallToAction({section, settings}: {section: CallToActionSection;
               {urgent ? (
                 <p className="u-eyebrow mb-4 text-bone/80">24 hours a day, 365 days a year</p>
               ) : null}
-              <h2 className={`u-h3 max-w-[24ch] ${urgent ? 'text-bone' : ''}`}>{heading}</h2>
+              <h2 className={`u-h3 max-w-[24ch] ${onDarkPanel ? 'text-bone' : 'text-bark'}`}>
+                {heading}
+              </h2>
               {body ? (
                 <p
                   className={`mt-5 max-w-[62ch] ${
-                    urgent ? 'text-bone/85' : appearance?.tone === 'bark' ? 'text-bone/80' : 'text-bark/75'
+                    onDarkPanel ? 'text-bone/85' : 'text-bark/75'
                   }`}
                 >
                   {body}
@@ -44,7 +49,7 @@ export function CallToAction({section, settings}: {section: CallToActionSection;
                 <a
                   href={`tel:${phone.replace(/\s/g, '')}`}
                   className={`font-display text-3xl no-underline transition-opacity hover:opacity-80 ${
-                    urgent ? 'text-bone' : 'text-bark'
+                    onDarkPanel ? 'text-bone' : 'text-bark'
                   }`}
                 >
                   {phone}
@@ -53,7 +58,7 @@ export function CallToAction({section, settings}: {section: CallToActionSection;
               <ButtonRow
                 buttons={buttons}
                 settings={settings}
-                tone={urgent || appearance?.tone === 'bark' ? 'bark' : undefined}
+                tone={onDarkPanel ? 'bark' : undefined}
               />
             </div>
           </div>
