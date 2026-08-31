@@ -114,6 +114,8 @@ export type PageDoc = {
   _type?: 'page' | 'locationPage'
   title?: string
   slug?: string
+  /** Only ever true on the page rendered at "/". Boolean, so stega-safe. */
+  isHomepage?: boolean | null
   town?: string
   localIntro?: PortableTextBlock[] | null
   nearbyAreas?: string[] | null

@@ -1,3 +1,4 @@
+import {redirect} from 'react-router'
 import type {Route} from './+types/page'
 import {isPreviewEnabled, loadContent} from '~/sanity/preview.server'
 import {useQuery} from '~/sanity/loader'
@@ -19,6 +20,13 @@ export async function loader({request, params}: Route.LoaderArgs) {
 
   if (!page.data) {
     throw new Response('Not found', {status: 404})
+  }
+
+  // The homepage still has a slug, because it is an ordinary Page document. It
+  // must not also answer on it: two URLs serving identical content splits the
+  // ranking signals between them.
+  if (page.data.isHomepage) {
+    throw redirect('/', 301)
   }
 
   return {

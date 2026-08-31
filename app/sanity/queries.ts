@@ -16,6 +16,7 @@ const imageFragment = /* groq */ `
 const linkFragment = /* groq */ `
   ...,
   "href": select(
+    kind == "internal" && page->isHomepage == true => "/",
     kind == "internal" => "/" + coalesce(page->slug.current, ""),
     kind == "external" => url,
     kind == "tel"      => "tel:" + coalesce(phone, ""),
@@ -62,7 +63,7 @@ const sectionsFragment = /* groq */ `
       cards[] {
         _key, summary,
         "title": coalesce(title, page->title),
-        "href": "/" + page->slug.current,
+        "href": select(page->isHomepage == true => "/", "/" + page->slug.current),
         image { ${imageFragment} }
       }
     },
@@ -159,7 +160,8 @@ export const LOCATION_PAGE_QUERY = defineQuery(/* groq */ `
 export const SLUG_QUERY = defineQuery(/* groq */ `
   coalesce(
     *[_type == "page" && slug.current == $slug][0] {
-      _id, _type, title, "slug": slug.current, ${sectionsFragment}, ${seoFragment}
+      _id, _type, title, "slug": slug.current, isHomepage,
+      ${sectionsFragment}, ${seoFragment}
     },
     *[_type == "locationPage" && slug.current == $slug][0] {
       _id, _type, title, town, localIntro, nearbyAreas,
