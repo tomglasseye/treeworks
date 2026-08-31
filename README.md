@@ -84,6 +84,46 @@ choice. If you'd rather not pay a third party at all, switch the gallery section
 **source** to "Images managed here" and upload photos in Studio — the same component
 renders both, no code change.
 
+## Header and menu
+
+Mirrors the old site's arrangement: site name, a few key links, the phone number,
+the quote CTA, and a hamburger that opens a full-page overlay listing **every**
+page — the same pattern, with the name, number and CTA the old header lacked.
+
+Which links sit in the top bar is an editor decision: tick **Show in the top bar**
+on a nav item in Studio. Everything appears in the overlay regardless. Four or
+five in the bar is the practical limit before it crowds the phone number.
+
+Breakpoints:
+
+| Width | Shows |
+|---|---|
+| `< 640px` | name · phone icon · hamburger |
+| `640–1023px` | name · phone number · CTA · hamburger |
+| `≥ 1024px` | name · bar links · phone number · CTA · hamburger |
+
+The overlay is a **sibling** of `<header>`, not a child. The header uses
+`backdrop-blur`, and `backdrop-filter` creates a containing block for
+fixed-position descendants — nested inside, the overlay clipped itself to the
+header's 80px instead of covering the viewport. Worth remembering before moving
+it back.
+
+## Wood grain
+
+`public/wood-grain.svg` — long grain lines that deflect around two knots, with
+concentric rings at each. Generated, not hand-drawn; the script that produced it
+is in the commit history and uses a fixed random seed, so it regenerates
+identically.
+
+It is applied as a **mask**, not a background image, so one asset picks up
+`currentColor` and works on the light and dark panels alike instead of needing
+two copies. Turn it on per section in Studio: **Appearance → Background pattern →
+Wood grain**. Opacity is tuned per tone (6% on bone, 9% on lichen, 10% on bark)
+and it is removed entirely under `prefers-contrast: more`.
+
+This is our own drawing, not the reference site's asset — theirs is a
+topographic contour motif, and grain suits a tree surgeon better anyway.
+
 ## Placeholder images
 
 Nothing has real photography yet. To fill every empty image field with one

@@ -2,10 +2,12 @@ import type {PortableTextBlock} from '@portabletext/react'
 
 export type Tone = 'bone' | 'lichen' | 'bark'
 export type Spacing = 'normal' | 'tight' | 'none'
+export type Pattern = 'none' | 'grain'
 
 export type Appearance = {
   tone?: Tone
   spacing?: Spacing
+  pattern?: Pattern
   anchorId?: string
 }
 
@@ -67,6 +69,7 @@ export type NavItem = {
   _key?: string
   label?: string
   link?: ResolvedLink
+  showInBar?: boolean
   children?: NavItem[] | null
 }
 

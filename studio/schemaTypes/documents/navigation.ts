@@ -20,6 +20,14 @@ export const navigation = defineType({
             defineField({name: 'label', type: 'string', validation: (r) => r.required()}),
             defineField({name: 'link', type: 'link', validation: (r) => r.required()}),
             defineField({
+              name: 'showInBar',
+              title: 'Show in the top bar',
+              type: 'boolean',
+              initialValue: false,
+              description:
+                'Every link appears in the menu overlay. Tick this for the few that also sit across the header on desktop — four or five is the practical limit before it crowds the phone number.',
+            }),
+            defineField({
               name: 'children',
               title: 'Dropdown items',
               type: 'array',
@@ -37,10 +45,15 @@ export const navigation = defineType({
             }),
           ],
           preview: {
-            select: {title: 'label', children: 'children'},
-            prepare: ({title, children}) => ({
+            select: {title: 'label', children: 'children', showInBar: 'showInBar'},
+            prepare: ({title, children, showInBar}) => ({
               title,
-              subtitle: children?.length ? `${children.length} sub-item(s)` : undefined,
+              subtitle: [
+                showInBar ? 'in top bar' : null,
+                children?.length ? `${children.length} sub-item(s)` : null,
+              ]
+                .filter(Boolean)
+                .join(' · '),
             }),
           },
         },

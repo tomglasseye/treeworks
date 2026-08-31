@@ -39,6 +39,20 @@ export const sectionAppearance = defineType({
       },
     }),
     defineField({
+      name: 'pattern',
+      title: 'Background pattern',
+      type: 'string',
+      initialValue: 'none',
+      options: {
+        list: [
+          {title: 'None', value: 'none'},
+          {title: 'Wood grain', value: 'grain'},
+        ],
+        layout: 'radio',
+      },
+      description: 'A faint wood-grain texture behind the section. Use sparingly.',
+    }),
+    defineField({
       name: 'anchorId',
       title: 'Anchor ID',
       type: 'string',

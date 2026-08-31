@@ -1,4 +1,4 @@
-import type {Appearance, Tone, Spacing} from '~/types'
+import type {Appearance, Tone, Spacing, Pattern} from '~/types'
 import {opt} from '~/lib/stega'
 
 const TONE: Record<Tone, string> = {
@@ -31,6 +31,7 @@ export function Section({
   // Cleaned: these index into the TONE/SPACING maps below.
   const tone = (opt(appearance?.tone) ?? 'bone') as Tone
   const spacing = (opt(appearance?.spacing) ?? 'normal') as Spacing
+  const pattern = (opt(appearance?.pattern) ?? 'none') as Pattern
 
   return (
     <Tag
@@ -38,7 +39,7 @@ export function Section({
       data-tone={tone}
       className={`${TONE[tone] ?? TONE.bone} ${SPACING[spacing] ?? SPACING.normal} ${className}`}
     >
-      <div className="u-container">{children}</div>
+      <div className={`u-container ${pattern === 'grain' ? 'u-grain' : ''}`}>{children}</div>
     </Tag>
   )
 }

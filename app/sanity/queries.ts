@@ -30,7 +30,7 @@ const ctaFragment = /* groq */ `
   link { ${linkFragment} }
 `
 
-const appearanceFragment = /* groq */ `appearance { tone, spacing, anchorId }`
+const appearanceFragment = /* groq */ `appearance { tone, spacing, pattern, anchorId }`
 
 /**
  * Section expansion. Only the section types that contain references or images
@@ -115,7 +115,7 @@ export const SITE_QUERY = defineQuery(/* groq */ `{
   },
   "navigation": *[_type == "navigation"][0] {
     headerLinks[] {
-      _key, label,
+      _key, label, showInBar,
       link { ${linkFragment} },
       children[] { _key, label, link { ${linkFragment} } }
     },
