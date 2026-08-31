@@ -1,10 +1,9 @@
-import type {Route} from './+types/robots.txt'
 
 /**
  * Served from a route rather than public/ so the Sitemap line always points at
  * the host actually being served — dev, a Netlify deploy preview, or production.
  */
-export function loader({request}: Route.LoaderArgs) {
+export function loader({request}: {request: Request}) {
   const configured = process.env.SITE_URL ?? process.env.URL
   const origin = (configured ?? new URL(request.url).origin).replace(/\/$/, '')
 

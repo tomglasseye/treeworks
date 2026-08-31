@@ -3,6 +3,7 @@ import {Prose} from '../ui/Prose'
 import {Section as Wrapper, toneRule} from '../ui/Section'
 import {opt} from '~/lib/stega'
 import {stegaClean} from '@sanity/client/stega'
+import {Reveal} from '../ui/Reveal'
 
 function toPlainText(blocks: unknown): string {
   if (!Array.isArray(blocks)) return ''
@@ -37,7 +38,7 @@ export function Faq({section}: {section: FaqSection}) {
       : null
 
   return (
-    <Wrapper appearance={appearance} grainSeed={section._key}>
+    <Wrapper appearance={appearance} grainSeed={section._key} reveal={false}>
       <div className="mx-auto max-w-[76ch]">
         {heading ? (
           <h2 className={`u-h2 mb-12 text-center ${onDark ? 'text-bone' : 'text-bark'}`}>
@@ -48,7 +49,8 @@ export function Faq({section}: {section: FaqSection}) {
         <div className={`border-t ${rule}`}>
           {items.map((it, i) => {
             return (
-              <details key={it._key ?? i} className={`group border-b ${rule}`}>
+              <Reveal key={it._key ?? i} delay={Math.min(i, 5) * 60}>
+              <details className={`group border-b ${rule}`}>
                 <summary
                   className={`flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-lg font-display marker:hidden ${
                     onDark ? 'text-bone' : 'text-bark'
@@ -69,6 +71,7 @@ export function Faq({section}: {section: FaqSection}) {
                   />
                 </div>
               </details>
+              </Reveal>
             )
           })}
         </div>

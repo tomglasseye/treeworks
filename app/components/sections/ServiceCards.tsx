@@ -13,12 +13,12 @@ export function ServiceCards({section}: {section: ServiceCardsSection}) {
   const muted = toneMuted(tone)
 
   return (
-    <Wrapper appearance={appearance} grainSeed={section._key}>
+    <Wrapper appearance={appearance} grainSeed={section._key} reveal={false}>
       {heading ? (
-        <div className="mb-14 max-w-[60ch]">
+        <Reveal className="mb-14 max-w-[60ch]">
           <h2 className={`u-h2 ${onDark ? 'text-bone' : 'text-bark'}`}>{heading}</h2>
           {intro ? <p className={`mt-5 text-lg ${muted}`}>{intro}</p> : null}
-        </div>
+        </Reveal>
       ) : null}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

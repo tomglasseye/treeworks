@@ -165,6 +165,80 @@
     .u-reveal { transition: none; }
   }
 
+  /*
+    Menu toggle: three bars that fold into a cross.
+
+    The header sits ABOVE the overlay in the stack, so this one button serves as
+    both open and close — no second X to find, and the icon itself tells you
+    what pressing it will do.
+  */
+  .u-burger-bar {
+    display: block;
+    height: 1.5px;
+    width: 22px;
+    border-radius: 2px;
+    background-color: currentColor;
+    transition:
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.25s ease;
+  }
+
+  .u-burger-bar + .u-burger-bar { margin-top: 5px; }
+
+  [data-open='true'] .u-burger-bar:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  [data-open='true'] .u-burger-bar:nth-child(2) { opacity: 0; transform: scaleX(0.4); }
+  [data-open='true'] .u-burger-bar:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /*
+    Menu overlay.
+
+    Kept in the DOM and animated with opacity/visibility rather than mounted and
+    unmounted, so it can animate out as well as in. `visibility` (not just
+    opacity) is what keeps it out of the tab order when closed.
+  */
+  .u-menu {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s linear 0.4s;
+  }
+
+  .u-menu[data-open='true'] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity 0.35s ease,
+      visibility 0s;
+  }
+
+  /* Links rise in behind the fade, staggered by index. */
+  .u-menu-item {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .u-menu[data-open='true'] .u-menu-item {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(90ms + var(--i, 0) * 45ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .u-burger-bar,
+    .u-menu,
+    .u-menu-item {
+      transition-duration: 0.01ms !important;
+      transition-delay: 0ms !important;
+    }
+    .u-menu-item { opacity: 1; transform: none; }
+  }
+
   /* Underline that draws in from the left rather than just appearing. */
   .u-link {
     background-image: linear-gradient(currentColor, currentColor);

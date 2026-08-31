@@ -1,4 +1,3 @@
-import type {Route} from './+types/sitemap.xml'
 import {publicClient} from '~/sanity/loader.server'
 
 type Entry = {slug: string; isHomepage?: boolean; updatedAt: string; noIndex?: boolean}
@@ -23,7 +22,7 @@ function siteUrl(request: Request) {
   return (configured ?? new URL(request.url).origin).replace(/\/$/, '')
 }
 
-export async function loader({request}: Route.LoaderArgs) {
+export async function loader({request}: {request: Request}) {
   const origin = siteUrl(request)
   const pages = await publicClient.fetch<Entry[]>(SITEMAP_QUERY)
 

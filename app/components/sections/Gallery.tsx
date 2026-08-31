@@ -3,6 +3,7 @@ import type {GallerySection, SiteSettings, InstagramPost, SanityImage} from '~/t
 import {Figure} from '../ui/Figure'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
 import {opt} from '~/lib/stega'
+import {Reveal} from '../ui/Reveal'
 
 const LAYOUTS: Record<string, string> = {
   masonry: 'columns-2 gap-4 md:columns-3 lg:columns-4 [&>*]:mb-4 [&>*]:break-inside-avoid',
@@ -78,12 +79,12 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
       {useSanityImages ? (
         <div className={containerClass}>
           {sanityList.map((img, i) => (
-            <Figure
-              key={i}
-              image={img}
-              className={itemClass}
-              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-            />
+            <Reveal key={i} delay={Math.min(i, 5) * 80} className={itemClass}>
+              <Figure
+                image={img}
+                sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+              />
+            </Reveal>
           ))}
         </div>
       ) : posts === null ? (
@@ -99,7 +100,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
         </div>
       ) : (
         <ul className={containerClass}>
-          {posts.map((post) => {
+          {posts.map((post, i) => {
             const img = (
               <img
                 src={post.thumb}
@@ -112,7 +113,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
               />
             )
             return (
-              <li key={post.id} className={itemClass}>
+              <Reveal key={post.id} as="li" delay={Math.min(i, 5) * 80} className={itemClass}>
                 {linkPostsToInstagram ? (
                   <a
                     href={post.permalink}
@@ -128,7 +129,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
                 {showCaptions && post.caption ? (
                   <p className={`mt-2 text-sm ${muted}`}>{post.caption.slice(0, 140)}</p>
                 ) : null}
-              </li>
+              </Reveal>
             )
           })}
         </ul>

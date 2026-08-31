@@ -38,7 +38,7 @@ export function Reveal({
   children: React.ReactNode
   /** Stagger, in ms. Keep under ~400ms total or it starts to read as lag. */
   delay?: number
-  as?: 'div' | 'li' | 'article' | 'section'
+  as?: 'div' | 'li' | 'article' | 'section' | 'figure' | 'tr'
   className?: string
 }) {
   const ref = useRef<HTMLElement>(null)

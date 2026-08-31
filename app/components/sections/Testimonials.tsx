@@ -1,6 +1,7 @@
 import type {TestimonialsSection, Testimonial} from '~/types'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
 import {opt} from '~/lib/stega'
+import {Reveal} from '../ui/Reveal'
 
 function Stars({rating}: {rating?: number}) {
   if (!rating) return null
@@ -49,11 +50,13 @@ export function Testimonials({section}: {section: TestimonialsSection}) {
   }
 
   return (
-    <Wrapper appearance={appearance} grainSeed={section._key}>
+    <Wrapper appearance={appearance} grainSeed={section._key} reveal={false}>
       {heading ? (
-        <h2 className={`u-h2 mb-14 text-center ${onDark ? 'text-bone' : 'text-bark'}`}>
-          {heading}
-        </h2>
+        <Reveal>
+          <h2 className={`u-h2 mb-14 text-center ${onDark ? 'text-bone' : 'text-bark'}`}>
+            {heading}
+          </h2>
+        </Reveal>
       ) : null}
       <div
         className={
@@ -63,8 +66,10 @@ export function Testimonials({section}: {section: TestimonialsSection}) {
         }
       >
         {list.map((t, i) => (
-          <figure
+          <Reveal
             key={t._id ?? i}
+            as="figure"
+            delay={Math.min(i, 3) * 110}
             className={`rounded-panel p-6 ${
               layout === 'carousel' ? 'w-[85vw] shrink-0 snap-start md:w-[24rem]' : ''
             } ${onDark ? 'bg-bone/10' : 'bg-lichen-soft'}`}
@@ -84,7 +89,7 @@ export function Testimonials({section}: {section: TestimonialsSection}) {
                 </time>
               ) : null}
             </figcaption>
-          </figure>
+          </Reveal>
         ))}
       </div>
     </Wrapper>

@@ -29,13 +29,13 @@ export function FeatureList({
   const bodyColor = onDark ? 'text-bone/85' : 'text-ink'
 
   return (
-    <Wrapper appearance={appearance} grainSeed={section._key}>
+    <Wrapper appearance={appearance} grainSeed={section._key} reveal={false}>
       {eyebrow || heading || intro ? (
-        <div className={layout === 'numbered' ? 'mb-14 text-center' : 'mb-14 max-w-[60ch]'}>
+        <Reveal className={layout === 'numbered' ? 'mb-14 text-center' : 'mb-14 max-w-[60ch]'}>
           {eyebrow ? <p className={`u-eyebrow mb-4 ${muted}`}>{eyebrow}</p> : null}
           {heading ? <h2 className={`u-h2 ${headingColor}`}>{heading}</h2> : null}
           {intro ? <p className={`mt-5 text-lg ${muted}`}>{intro}</p> : null}
-        </div>
+        </Reveal>
       ) : null}
 
       {layout === 'alternating' ? (
@@ -43,7 +43,7 @@ export function FeatureList({
           {items.map((item: FeatureItem, i: number) => {
             const flip = i % 2 === 1
             return (
-              <div
+              <Reveal
                 key={item._key ?? i}
                 className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16"
               >
@@ -62,7 +62,7 @@ export function FeatureList({
                   className={`aspect-[4/3] ${flip ? 'lg:order-1' : ''}`}
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
-              </div>
+              </Reveal>
             )
           })}
         </div>
@@ -84,8 +84,10 @@ export function FeatureList({
       {layout === 'cards' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((item: FeatureItem, i: number) => (
-            <article
+            <Reveal
               key={item._key ?? i}
+              as="article"
+              delay={Math.min(i, 3) * 110}
               className={`overflow-hidden rounded-panel ${onDark ? 'bg-bone/10' : 'bg-lichen-soft'}`}
             >
               <Figure
@@ -104,7 +106,7 @@ export function FeatureList({
                   </div>
                 ) : null}
               </div>
-            </article>
+            </Reveal>
           ))}
         </div>
       ) : null}
@@ -112,12 +114,12 @@ export function FeatureList({
       {layout === 'compact' ? (
         <dl className={`border-t ${rule}`}>
           {items.map((item: FeatureItem, i: number) => (
-            <div key={item._key ?? i} className={`grid gap-4 border-b py-8 md:grid-cols-3 ${rule}`}>
+            <Reveal key={item._key ?? i} className={`grid gap-4 border-b py-8 md:grid-cols-3 ${rule}`}>
               <dt className={`font-display text-xl ${headingColor}`}>{item.title}</dt>
               <dd className="md:col-span-2">
                 <Prose value={item.body} className={bodyColor} />
               </dd>
-            </div>
+            </Reveal>
           ))}
         </dl>
       ) : null}

@@ -2,6 +2,7 @@ import type {LogoStripSection} from '~/types'
 import {Figure} from '../ui/Figure'
 import {Section as Wrapper} from '../ui/Section'
 import {opt} from '~/lib/stega'
+import {Reveal} from '../ui/Reveal'
 
 export function LogoStrip({section}: {section: LogoStripSection}) {
   const {heading, appearance} = section
@@ -9,7 +10,7 @@ export function LogoStrip({section}: {section: LogoStripSection}) {
   const onDark = opt(appearance?.tone) === 'bark'
 
   return (
-    <Wrapper appearance={appearance} grainSeed={section._key}>
+    <Wrapper appearance={appearance} grainSeed={section._key} reveal={false}>
       {heading ? (
         <h2 className={`u-h3 mb-12 text-center ${onDark ? 'text-bone' : 'text-bark'}`}>
           {heading}
@@ -27,7 +28,7 @@ export function LogoStrip({section}: {section: LogoStripSection}) {
             />
           )
           return (
-            <li key={l._key ?? i} title={l.name}>
+            <Reveal key={l._key ?? i} as="li" delay={Math.min(i, 5) * 80} className="list-none">
               {l.link?.href ? (
                 <a href={l.link.href} target="_blank" rel="noopener noreferrer">
                   {img}
@@ -35,7 +36,7 @@ export function LogoStrip({section}: {section: LogoStripSection}) {
               ) : (
                 img
               )}
-            </li>
+            </Reveal>
           )
         })}
       </ul>

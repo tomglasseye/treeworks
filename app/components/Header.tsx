@@ -18,14 +18,11 @@ export function Header({navigation, settings}: {navigation?: Navigation; setting
   const toggleRef = useRef<HTMLButtonElement>(null)
 
   const links: NavItem[] = navigation?.headerLinks ?? []
-  // The bar shows the few flagged links; the overlay always shows everything.
   const barLinks = links.filter((l) => l.showInBar)
   const phone = settings?.phone
 
-  // Close on navigation, so tapping a link in the overlay does the obvious thing.
   useEffect(() => setOpen(false), [location.pathname])
 
-  // Lock the page behind the overlay and restore focus on close.
   useEffect(() => {
     if (!open) return
     const {overflow} = document.body.style
@@ -42,26 +39,40 @@ export function Header({navigation, settings}: {navigation?: Navigation; setting
   }, [open])
 
   return (
-    // The overlay is a SIBLING of <header>, not a child. The header uses
-    // backdrop-blur, and backdrop-filter creates a containing block for
-    // fixed-position descendants — nesting the overlay inside clipped it to the
-    // header's 80px instead of the viewport.
+    // The header sits ABOVE the overlay (z-50 vs z-40) so the toggle stays
+    // reachable and can morph into the close icon. Its background drops away
+    // when open, letting the dark overlay read as full-page.
     <>
-      <header className="sticky top-0 z-40 border-b border-rule/60 bg-bone/90 backdrop-blur-sm">
+      <header
+        data-open={open}
+        className={`sticky top-0 z-50 transition-colors duration-300 ${
+          open
+            ? 'border-transparent bg-transparent text-bone'
+            : 'border-b border-rule/60 bg-bone/90 text-ink backdrop-blur-sm'
+        }`}
+      >
         <div className="u-container flex h-20 items-center gap-6">
-          <Link to="/" className="shrink-0 font-display text-lg leading-tight text-bark no-underline md:text-xl">
+          <Link
+            to="/"
+            className={`shrink-0 font-display text-lg leading-tight no-underline transition-colors md:text-xl ${
+              open ? 'text-bone' : 'text-bark'
+            }`}
+          >
             {settings?.businessName ?? 'Treeworks Cornwall'}
           </Link>
 
-          <nav aria-label="Main" className="ml-auto hidden items-center gap-7 lg:flex">
+          <nav
+            aria-label="Main"
+            className={`ml-auto hidden items-center gap-7 transition-opacity duration-200 lg:flex ${
+              open ? 'pointer-events-none opacity-0' : 'opacity-100'
+            }`}
+          >
             {barLinks.map((item, i) => (
               <NavLink
                 key={item._key ?? i}
                 to={resolveHref({link: item.link}, settings)}
                 className={({isActive}) =>
-                  `whitespace-nowrap text-base no-underline transition-colors hover:text-canopy ${
-                    isActive ? 'text-canopy' : 'text-ink'
-                  }`
+                  `u-link whitespace-nowrap text-base ${isActive ? 'text-canopy' : 'text-ink'}`
                 }
               >
                 {item.label}
@@ -70,47 +81,61 @@ export function Header({navigation, settings}: {navigation?: Navigation; setting
           </nav>
 
           <div className={`flex items-center gap-3 ${barLinks.length ? '' : 'ml-auto'} lg:gap-5`}>
-            {phone ? (
-              <a
-                href={telHref(phone)}
-                className="hidden items-center gap-2 whitespace-nowrap text-base text-ink no-underline transition-colors hover:text-canopy md:inline-flex"
-              >
-                {phone}
-                <PhoneIcon className="h-4 w-4" />
-              </a>
-            ) : null}
+            <span
+              className={`transition-opacity duration-200 ${
+                open ? 'pointer-events-none opacity-0' : 'opacity-100'
+              }`}
+            >
+              {phone ? (
+                <a
+                  href={telHref(phone)}
+                  className="hidden items-center gap-2 whitespace-nowrap text-base text-ink no-underline transition-colors hover:text-canopy md:inline-flex"
+                >
+                  {phone}
+                  <PhoneIcon className="h-4 w-4" />
+                </a>
+              ) : null}
+            </span>
 
-            {/* On phones the number collapses to just the icon — a tap target, not a line of text. */}
+            {/* On phones the number collapses to just the icon — a tap target,
+                not a line of text. */}
             {phone ? (
               <a
                 href={telHref(phone)}
                 aria-label={`Call ${settings?.phoneLabel ?? 'us'} on ${phone}`}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-pill border border-rule text-ink md:hidden"
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-pill border border-rule text-ink transition-opacity duration-200 md:hidden ${
+                  open ? 'pointer-events-none opacity-0' : 'opacity-100'
+                }`}
               >
                 <PhoneIcon className="h-5 w-5" />
               </a>
             ) : null}
 
-            <span className="hidden sm:inline-flex">
+            <span
+              className={`hidden transition-opacity duration-200 sm:inline-flex ${
+                open ? 'pointer-events-none opacity-0' : 'opacity-100'
+              }`}
+            >
               <Button cta={navigation?.headerCta} settings={settings} />
             </span>
 
             <button
               ref={toggleRef}
               type="button"
-              onClick={() => setOpen(true)}
+              onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
               aria-controls="site-menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-input text-ink transition-colors hover:text-canopy"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-input transition-colors hover:text-canopy"
             >
-              <span className="sr-only">Open menu</span>
-              <svg viewBox="0 0 24 24" aria-hidden className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                <path d="M3 6h18M3 12h18M3 18h18" />
-              </svg>
+              <span className="sr-only">{open ? 'Close menu' : 'Open menu'}</span>
+              <span aria-hidden className="flex flex-col items-center justify-center">
+                <span className="u-burger-bar" />
+                <span className="u-burger-bar" />
+                <span className="u-burger-bar" />
+              </span>
             </button>
           </div>
         </div>
-
       </header>
 
       <MenuOverlay
@@ -144,37 +169,31 @@ function MenuOverlay({
     if (open) panelRef.current?.focus()
   }, [open])
 
+  // Everything after the links continues the stagger.
+  const tailIndex = links.length + 1
+
   return (
     <div
       id="site-menu"
       role="dialog"
       aria-modal="true"
       aria-label="Site menu"
-      hidden={!open}
-      className="fixed inset-0 z-50 bg-bark text-bone"
+      aria-hidden={!open}
+      data-open={open}
+      className="u-menu fixed inset-0 z-40 bg-bark text-bone"
     >
-      <div ref={panelRef} tabIndex={-1} className="flex h-full flex-col overflow-y-auto outline-none">
-        <div className="u-container flex h-20 shrink-0 items-center justify-between">
-          <Link to="/" onClick={onClose} className="font-display text-lg text-bone no-underline md:text-xl">
-            {settings?.businessName ?? 'Treeworks Cornwall'}
-          </Link>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-input text-bone transition-opacity hover:opacity-70"
-          >
-            <span className="sr-only">Close menu</span>
-            <svg viewBox="0 0 24 24" aria-hidden className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="u-container flex flex-1 flex-col justify-center py-10">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="flex h-full flex-col justify-center overflow-y-auto px-0 pb-10 pt-24 outline-none"
+      >
+        <div className="u-container">
           {phone ? (
             <a
               href={telHref(phone)}
-              className="inline-flex w-fit items-center gap-3 font-display text-2xl text-bone no-underline transition-opacity hover:opacity-80 md:text-3xl"
+              onClick={onClose}
+              style={{'--i': 0} as React.CSSProperties}
+              className="u-menu-item inline-flex w-fit items-center gap-3 font-display text-2xl text-bone no-underline transition-opacity hover:opacity-80 md:text-3xl"
             >
               {settings?.phoneLabel ? `Call ${settings.phoneLabel}: ` : 'Call '}
               {phone}
@@ -183,13 +202,17 @@ function MenuOverlay({
           ) : null}
 
           <nav aria-label="All pages" className="mt-10">
-            <ul className="space-y-1">
+            <ul>
               {links.map((item, i) => (
-                <li key={item._key ?? i}>
+                <li
+                  key={item._key ?? i}
+                  style={{'--i': i + 1} as React.CSSProperties}
+                  className="u-menu-item"
+                >
                   <Link
                     to={resolveHref({link: item.link}, settings)}
                     onClick={onClose}
-                    className="block py-2 text-lg text-bone/70 no-underline transition-colors hover:text-bone md:text-xl"
+                    className="block py-2 text-lg text-bone/70 no-underline transition-colors duration-200 hover:text-bone md:text-xl"
                   >
                     {item.label}
                   </Link>
@@ -199,12 +222,18 @@ function MenuOverlay({
           </nav>
 
           {navigation?.headerCta?.label ? (
-            <div className="mt-10">
+            <div
+              style={{'--i': tailIndex} as React.CSSProperties}
+              className="u-menu-item mt-10"
+            >
               <Button cta={navigation.headerCta} settings={settings} tone="bark" />
             </div>
           ) : null}
 
-          <div className="mt-12 space-y-1 border-t border-bone/15 pt-8 text-sm text-bone/60">
+          <div
+            style={{'--i': tailIndex + 1} as React.CSSProperties}
+            className="u-menu-item mt-12 space-y-1 border-t border-bone/15 pt-8 text-sm text-bone/60"
+          >
             {settings?.email ? (
               <p>
                 <a href={`mailto:${settings.email}`} className="text-bone/60 no-underline hover:text-bone">

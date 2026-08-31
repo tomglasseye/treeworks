@@ -108,6 +108,35 @@ fixed-position descendants — nested inside, the overlay clipped itself to the
 header's 80px instead of covering the viewport. Worth remembering before moving
 it back.
 
+## Motion
+
+Scroll reveals are CSS transitions toggled by a `data-revealed` attribute that one
+shared `IntersectionObserver` sets, then unobserves. No animation library.
+
+Where a page-builder block holds an **array** — feature list items, service cards,
+testimonials, stats, FAQ rows, gallery images, logos — each item reveals
+individually rather than the block fading in as one. Those sections pass
+`reveal={false}` to the section wrapper so the two do not nest and fight.
+
+Stagger follows the layout, which is the part worth getting right:
+
+- items that appear **side by side** (cards, stats, logos) stagger by index, capped
+  so a long row does not trail
+- items **stacked vertically** (alternating feature rows, compact lists) get no
+  stagger — each is already reaching the fold at a different moment, and adding
+  delay on top just makes them feel late
+
+Everything is hidden only once a `js` class confirms JavaScript is running, so a
+blocked bundle cannot leave the page invisible, and all of it is disabled under
+`prefers-reduced-motion`.
+
+The menu toggle morphs into its own close icon: the header sits above the overlay
+in the stack (`z-50` vs `z-40`) and drops its background when open, so one button
+serves both states. The overlay stays mounted and animates on `opacity` and
+`visibility` rather than mounting and unmounting, which is what lets it animate
+out as well as in; `visibility` is also what keeps it out of the tab order when
+closed.
+
 ## Wood grain
 
 Four variants in `public/grain/`. Generated, not hand-drawn — the script uses a
