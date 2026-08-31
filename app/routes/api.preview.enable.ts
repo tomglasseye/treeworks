@@ -1,7 +1,7 @@
 import {redirect} from 'react-router'
 import {validatePreviewUrl} from '@sanity/preview-url-secret'
 import type {Route} from './+types/api.preview.enable'
-import {serverClient} from '~/sanity/loader.server'
+import {previewAuthClient} from '~/sanity/loader.server'
 import {previewCookie} from '~/sanity/preview.server'
 
 /**
@@ -21,7 +21,7 @@ export async function loader({request}: Route.LoaderArgs) {
   let redirectTo = '/'
 
   try {
-    const result = await validatePreviewUrl(serverClient, request.url)
+    const result = await validatePreviewUrl(previewAuthClient, request.url)
     isValid = result.isValid
     redirectTo = result.redirectTo ?? '/'
   } catch (error) {

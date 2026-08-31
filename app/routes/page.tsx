@@ -1,6 +1,5 @@
 import type {Route} from './+types/page'
-import {loadQuery} from '~/sanity/loader.server'
-import {isPreviewEnabled, queryOptions} from '~/sanity/preview.server'
+import {isPreviewEnabled, loadContent} from '~/sanity/preview.server'
 import {useQuery} from '~/sanity/loader'
 import {SLUG_QUERY, SITE_QUERY} from '~/sanity/queries'
 import {SectionRenderer} from '~/components/SectionRenderer'
@@ -11,12 +10,11 @@ import type {PageDoc, SiteData} from '~/types'
 
 export async function loader({request, params}: Route.LoaderArgs) {
   const preview = await isPreviewEnabled(request)
-  const options = queryOptions(preview)
   const queryParams = {slug: params.slug}
 
   const [page, site] = await Promise.all([
-    loadQuery<PageDoc | null>(SLUG_QUERY, queryParams, options),
-    loadQuery<SiteData>(SITE_QUERY, {}, options),
+    loadContent<PageDoc | null>(SLUG_QUERY, queryParams, preview),
+    loadContent<SiteData>(SITE_QUERY, {}, preview),
   ])
 
   if (!page.data) {

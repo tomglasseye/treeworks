@@ -173,6 +173,26 @@ SANITY_API_READ_TOKEN=<the token>
 in `.env` locally and in Netlify's environment variables. Without it, `/api/preview/enable`
 returns a 501 telling you exactly that, and the site keeps serving published content.
 
+### Why published reads are unauthenticated
+
+Published content is fetched with a **tokenless** client (`publicClient`), and
+only draft reads use the authenticated one. That split matters: with a single
+token-carrying client, one revoked or mistyped token takes every page down with
+`Unauthorized - Session not found`, rather than just breaking preview.
+
+`loadContent()` also falls back to published content if Sanity rejects the token
+mid-preview, and logs why. A stale token should degrade preview, never 500 the site.
+
+Quick check on whether a token is good:
+
+```
+curl -s -o /dev/null -w "%{http_code}\n" \
+  "http://localhost:5173/api/preview/enable?sanity-preview-secret=probe"
+```
+
+`401` = token works (Sanity was reached, it just refused the fake secret).
+`503` = token rejected — make a new one. `501` = no token configured.
+
 ### How draft mode works
 
 React Router has no built-in `draftMode()`, so:

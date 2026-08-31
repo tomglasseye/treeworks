@@ -2,24 +2,42 @@ import {createClient} from '@sanity/client'
 import {loadQuery, setServerClient} from './loader'
 import {projectId, dataset, apiVersion, studioUrl} from './env'
 
-// Read the token straight from process.env. Importing it from env.ts would leak
-// it into the client bundle the moment a component touched that module.
-// Reading drafts requires a token with Viewer access. Without one the site
-// still works; Presentation just shows published content.
 const token = process.env.SANITY_API_READ_TOKEN
 
-const serverClient = createClient({
+/**
+ * Unauthenticated client for published content.
+ *
+ * The dataset is public, so published reads need no credentials. Keeping them
+ * on a tokenless client is deliberate: a revoked or mistyped preview token then
+ * breaks preview only, instead of taking every page down with
+ * "Unauthorized - Session not found".
+ */
+export const publicClient = createClient({
   projectId,
   dataset,
   apiVersion,
   useCdn: true,
-  token,
-  // Stega markers leak into copy/paste and screen readers, so the client
-  // default is off. Each loadQuery turns it on per request when the draft-mode
-  // cookie is present — see queryOptions() in preview.server.ts.
-  stega: {enabled: false, studioUrl},
+  stega: false,
 })
 
-setServerClient(serverClient)
+/**
+ * Authenticated client, used only for draft reads and for validating the
+ * Presentation preview secret (a private `sanity.previewUrlSecret` document the
+ * public client cannot see).
+ *
+ * @sanity/react-loader refuses `perspective: "drafts"` unless the client
+ * registered with setServerClient carries a token, so this is what gets
+ * registered — but nothing reaches it unless draft mode is on.
+ */
+export const previewAuthClient = createClient({
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: false,
+  token,
+  stega: {enabled: Boolean(token), studioUrl},
+})
 
-export {loadQuery, serverClient}
+setServerClient(previewAuthClient)
+
+export {loadQuery}
