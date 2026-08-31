@@ -5,10 +5,6 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# React Router SSR runs through Netlify's Vite plugin adapter.
-[[plugins]]
-  package = "@netlify/vite-plugin"
-
 [[headers]]
   for = "/*"
   [headers.values]

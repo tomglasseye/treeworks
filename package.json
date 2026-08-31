@@ -12,6 +12,7 @@
     "schema:deploy": "sanity schema deploy"
   },
   "dependencies": {
+    "@netlify/vite-plugin-react-router": "^4.0.0",
     "@portabletext/react": "^8.0.1",
     "@react-router/node": "^8.3.1",
     "@react-router/serve": "^8.3.1",
@@ -31,7 +32,6 @@
     "styled-components": "^6.1.13"
   },
   "devDependencies": {
-    "@netlify/vite-plugin": "^3.0.1",
     "@react-router/dev": "^8.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^22.10.0",
