@@ -6,6 +6,7 @@
     "dev": "react-router dev",
     "build": "react-router build",
     "start": "react-router-serve ./build/server/index.js",
+    "preview": "node --env-file=.env ./node_modules/@react-router/serve/bin.cjs ./build/server/index.js",
     "typecheck": "react-router typegen && tsc --noEmit",
     "check:forms": "node scripts/check-forms.mjs",
     "studio:deploy": "sanity deploy",

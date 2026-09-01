@@ -70,8 +70,9 @@ export function Figure({
         ref={(node) => {
           if (node?.complete) setLoaded(true)
         }}
-        className={`relative h-full w-full object-cover transition-opacity duration-500 ${
-          loaded ? 'opacity-100' : 'opacity-0'
+        data-loaded={loaded ? 'true' : undefined}
+        className={`relative h-full w-full object-cover ${
+          priority ? '' : 'u-img-fade'
         } ${imgClassName}`}
       />
 

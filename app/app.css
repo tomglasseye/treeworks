@@ -166,6 +166,31 @@
   }
 
   /*
+    Image fade-in.
+
+    Deliberately NOT applied to priority images: the hero is the LCP element,
+    and an element at opacity 0 has not painted as far as the browser is
+    concerned, so gating it on a React state flip pushes LCP out to whenever
+    hydration happens to finish. Below-the-fold images cannot affect LCP, so
+    they keep the fade.
+
+    Guarded on `.js` for the same reason as .u-reveal: a blocked bundle must
+    not leave every image invisible.
+  */
+  .u-img-fade {
+    transition: opacity 0.5s ease;
+  }
+
+  .js .u-img-fade:not([data-loaded='true']) {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js .u-img-fade:not([data-loaded='true']) { opacity: 1; }
+    .u-img-fade { transition: none; }
+  }
+
+  /*
     Menu toggle: three bars that fold into a cross.
 
     The header sits ABOVE the overlay in the stack, so this one button serves as

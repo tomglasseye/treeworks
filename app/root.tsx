@@ -46,7 +46,13 @@ export const links: Route.LinksFunction = () => [
   {rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous'},
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Mulish:ital,wght@0,300..800;1,300..800&display=swap',
+    // Only what the design actually uses. Fraunces is set at 400 everywhere
+    // (headings, the phone links, prose blockquotes), with italics for <em> and
+    // blockquote, and keeps the optical-size axis because font-optical-sizing
+    // is on. Mulish is body text at 400 and eyebrows at 700, and is never
+    // italic — asking for the 300..800 range plus a whole italic file was
+    // downloading two faces nothing on the site can render.
+    href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Mulish:wght@400..700&display=swap',
   },
   {rel: 'stylesheet', href: stylesheet},
 ]
