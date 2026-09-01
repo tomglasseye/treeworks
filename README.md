@@ -28,15 +28,15 @@ copy. Saving a Studio file reloads only the Studio — the site's watcher ignore
 The Studio reads its own `studio/.env`, but does not need one: the project and
 dataset have literal fallbacks in `studio/sanity.config.ts`.
 
-| Script | What it does |
-|---|---|
-| `npm run dev` | Both dev servers, site and Studio, on one origin |
-| `npm run dev:site` / `dev:studio` | One of them on its own |
-| `npm run build` | Site, then the Studio into `build/client/studio` |
-| `npm run build:studio` | Just the Studio (installs its dependencies first) |
-| `npm run preview` | Serve the production build locally, reading `.env` |
-| `npm run typecheck` | Route typegen + `tsc`, both packages |
-| `npm run check:forms` | Fails if the contact form and `public/__forms.html` drift apart |
+| Script                            | What it does                                                    |
+| --------------------------------- | --------------------------------------------------------------- |
+| `npm run dev`                     | Both dev servers, site and Studio, on one origin                |
+| `npm run dev:site` / `dev:studio` | One of them on its own                                          |
+| `npm run build`                   | Site, then the Studio into `build/client/studio`                |
+| `npm run build:studio`            | Just the Studio (installs its dependencies first)               |
+| `npm run preview`                 | Serve the production build locally, reading `.env`              |
+| `npm run typecheck`               | Route typegen + `tsc`, both packages                            |
+| `npm run check:forms`             | Fails if the contact form and `public/__forms.html` drift apart |
 
 ## How the page builder works
 
@@ -113,11 +113,11 @@ five in the bar is the practical limit before it crowds the phone number.
 
 Breakpoints:
 
-| Width | Shows |
-|---|---|
-| `< 640px` | name · phone icon · hamburger |
-| `640–1023px` | name · phone number · CTA · hamburger |
-| `≥ 1024px` | name · bar links · phone number · CTA · hamburger |
+| Width        | Shows                                             |
+| ------------ | ------------------------------------------------- |
+| `< 640px`    | name · phone icon · hamburger                     |
+| `640–1023px` | name · phone number · CTA · hamburger             |
+| `≥ 1024px`   | name · bar links · phone number · CTA · hamburger |
 
 The overlay is a **sibling** of `<header>`, not a child. The header uses
 `backdrop-blur`, and `backdrop-filter` creates a containing block for
@@ -176,7 +176,6 @@ The grain bleeds `-50vw` either side so it runs to the section edges rather than
 stopping at the text column; the section carries `.u-grain-clip` to contain that,
 without which the page gains a horizontal scrollbar.
 
-
 ## Placeholder images
 
 Nothing has real photography yet. To fill every empty image field with one
@@ -229,7 +228,7 @@ One thing: a **Viewer** token, so the server can read drafts.
 sanity.io/manage → the project → API → Tokens → Add token → Viewer. Then:
 
 ```
-SANITY_API_READ_TOKEN=<the token>
+SANITY_VIEWER_TOKEN=<the token>
 ```
 
 in `.env` locally and in Netlify's environment variables. Without it — or with a
@@ -317,10 +316,10 @@ as static files from the same deploy.
 
 Three rules in `netlify.toml`, in this order:
 
-| Rule | Why |
-|---|---|
-| `/studio` → `/studio/` (301) | The Studio lives at the trailing slash, in `sanity dev` too. This normalises the URL before the Studio's own router sees it. |
-| `/studio/*` → `/studio/index.html` (200) | The Studio routes client-side, so `/studio/structure` has no file on disk and would otherwise reach the SSR function and 404. |
+| Rule                                        | Why                                                                                                                                                                                |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/studio` → `/studio/` (301)                | The Studio lives at the trailing slash, in `sanity dev` too. This normalises the URL before the Studio's own router sees it.                                                       |
+| `/studio/*` → `/studio/index.html` (200)    | The Studio routes client-side, so `/studio/structure` has no file on disk and would otherwise reach the SSR function and 404.                                                      |
 | `/static/*` → `/studio/static/:splat` (200) | `sanity build` applies the base path to its script and stylesheet tags but leaves the favicon and web manifest `<link>`s at `/static/*`. Confirmed against the built `index.html`. |
 
 All three depend on Netlify serving an existing file ahead of a non-forced
@@ -374,7 +373,7 @@ VITE_SANITY_DATASET=production
 VITE_SANITY_API_VERSION=2026-08-01
 VITE_SANITY_STUDIO_URL=/studio
 VITE_BEHOLD_FEED_URL=<your feed url>
-SANITY_API_READ_TOKEN=<Viewer token, for Presentation>
+SANITY_VIEWER_TOKEN=<Viewer token, for Presentation>
 PREVIEW_COOKIE_SECRET=<long random string>
 ```
 

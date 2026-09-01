@@ -1,8 +1,8 @@
-import {createClient} from '@sanity/client'
-import {loadQuery, setServerClient} from './loader'
-import {projectId, dataset, apiVersion, studioUrl} from './env'
+import { createClient } from "@sanity/client";
+import { loadQuery, setServerClient } from "./loader";
+import { projectId, dataset, apiVersion, studioUrl } from "./env";
 
-const token = process.env.SANITY_API_READ_TOKEN
+const token = process.env.SANITY_VIEWER_TOKEN;
 
 /**
  * Unauthenticated client for published content.
@@ -13,12 +13,12 @@ const token = process.env.SANITY_API_READ_TOKEN
  * "Unauthorized - Session not found".
  */
 export const publicClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true,
-  stega: false,
-})
+	projectId,
+	dataset,
+	apiVersion,
+	useCdn: true,
+	stega: false,
+});
 
 /**
  * Authenticated client, used only for draft reads and for validating the
@@ -30,14 +30,14 @@ export const publicClient = createClient({
  * registered — but nothing reaches it unless draft mode is on.
  */
 export const previewAuthClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false,
-  token,
-  stega: {enabled: Boolean(token), studioUrl},
-})
+	projectId,
+	dataset,
+	apiVersion,
+	useCdn: false,
+	token,
+	stega: { enabled: Boolean(token), studioUrl },
+});
 
-setServerClient(previewAuthClient)
+setServerClient(previewAuthClient);
 
-export {loadQuery}
+export { loadQuery };

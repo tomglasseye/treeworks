@@ -1,8 +1,11 @@
-import {redirect} from 'react-router'
-import {validatePreviewUrl, urlSearchParamPreviewPathname} from '@sanity/preview-url-secret'
-import type {Route} from './+types/api.preview.enable'
-import {previewAuthClient} from '~/sanity/loader.server'
-import {previewCookie, previewFrameCookie} from '~/sanity/preview.server'
+import { redirect } from "react-router";
+import {
+	validatePreviewUrl,
+	urlSearchParamPreviewPathname,
+} from "@sanity/preview-url-secret";
+import type { Route } from "./+types/api.preview.enable";
+import { previewAuthClient } from "~/sanity/loader.server";
+import { previewCookie, previewFrameCookie } from "~/sanity/preview.server";
 
 /**
  * Presentation calls this with a single-use secret it just wrote to the dataset.
@@ -14,43 +17,58 @@ import {previewCookie, previewFrameCookie} from '~/sanity/preview.server'
  * useful failure than an error page inside an iframe. Draft access is never
  * granted on a failed check.
  */
-export async function loader({request}: Route.LoaderArgs) {
-  const url = new URL(request.url)
-  const target = url.searchParams.get(urlSearchParamPreviewPathname) || '/'
+export async function loader({ request }: Route.LoaderArgs) {
+	const url = new URL(request.url);
+	const target = url.searchParams.get(urlSearchParamPreviewPathname) || "/";
 
-  // Only Presentation ever calls this route, so reaching it at all is proof we
-  // are inside the Studio. That is worth recording even when the handshake
-  // fails: it is what lets the preview frame explain itself instead of looking
-  // like a working page with nothing clickable.
-  async function markFrame() {
-    return [['Set-Cookie', await previewFrameCookie.serialize(true)] as [string, string]]
-  }
+	// Only Presentation ever calls this route, so reaching it at all is proof we
+	// are inside the Studio. That is worth recording even when the handshake
+	// fails: it is what lets the preview frame explain itself instead of looking
+	// like a working page with nothing clickable.
+	async function markFrame() {
+		return [
+			["Set-Cookie", await previewFrameCookie.serialize(true)] as [
+				string,
+				string,
+			],
+		];
+	}
 
-  if (!process.env.SANITY_API_READ_TOKEN) {
-    console.warn('[preview] SANITY_API_READ_TOKEN is not set — showing published content.')
-    return redirect(target, {headers: await markFrame()})
-  }
+	if (!process.env.SANITY_VIEWER_TOKEN) {
+		console.warn(
+			"[preview] SANITY_VIEWER_TOKEN is not set — showing published content.",
+		);
+		return redirect(target, { headers: await markFrame() });
+	}
 
-  try {
-    const {isValid, redirectTo = target} = await validatePreviewUrl(previewAuthClient, request.url)
+	try {
+		const { isValid, redirectTo = target } = await validatePreviewUrl(
+			previewAuthClient,
+			request.url,
+		);
 
-    if (!isValid) {
-      console.warn('[preview] Invalid or expired preview secret — showing published content.')
-      return redirect(target, {headers: await markFrame()})
-    }
+		if (!isValid) {
+			console.warn(
+				"[preview] Invalid or expired preview secret — showing published content.",
+			);
+			return redirect(target, { headers: await markFrame() });
+		}
 
-    return redirect(redirectTo, {
-      headers: [
-        ...(await markFrame()),
-        ['Set-Cookie', await previewCookie.serialize(true)] as [string, string],
-      ],
-    })
-  } catch (error) {
-    console.error(
-      '[preview] Could not validate the preview secret. Usually the read token has been ' +
-        'revoked — create a fresh Viewer token at sanity.io/manage.',
-      error instanceof Error ? error.message : error,
-    )
-    return redirect(target, {headers: await markFrame()})
-  }
+		return redirect(redirectTo, {
+			headers: [
+				...(await markFrame()),
+				["Set-Cookie", await previewCookie.serialize(true)] as [
+					string,
+					string,
+				],
+			],
+		});
+	} catch (error) {
+		console.error(
+			"[preview] Could not validate the preview secret. Usually the read token has been " +
+				"revoked — create a fresh Viewer token at sanity.io/manage.",
+			error instanceof Error ? error.message : error,
+		);
+		return redirect(target, { headers: await markFrame() });
+	}
 }
