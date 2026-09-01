@@ -3,9 +3,6 @@ import {type RouteConfig, index, route} from '@react-router/dev/routes'
 export default [
   index('routes/home.tsx'),
 
-  // Sanity Studio, embedded in the same deploy.
-  route('studio/*', 'routes/studio.tsx'),
-
   // Server-side Behold proxy for the Instagram gallery.
   route('api/instagram', 'routes/api.instagram.ts'),
 

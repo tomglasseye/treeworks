@@ -6,7 +6,6 @@ import {
   ScrollRestoration,
   data,
   isRouteErrorResponse,
-  useLocation,
   useRouteLoaderData,
 } from 'react-router'
 import {Suspense, lazy} from 'react'
@@ -59,7 +58,6 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({children}: {children: React.ReactNode}) {
   const data = useRouteLoaderData<typeof loader>('root')
-  const isStudio = useLocation().pathname.startsWith('/studio')
   return (
     <html lang="en-GB">
       <head>
@@ -73,18 +71,13 @@ export function Layout({children}: {children: React.ReactNode}) {
           dangerouslySetInnerHTML={{__html: "document.documentElement.classList.add('js')"}}
         />
       </head>
-      <body
-        data-preview={data?.preview ? 'true' : undefined}
-        data-studio={isStudio ? 'true' : undefined}
-      >
-        {isStudio ? null : (
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-input focus:bg-bark focus:px-4 focus:py-2 focus:text-bone"
-          >
-            Skip to content
-          </a>
-        )}
+      <body data-preview={data?.preview ? 'true' : undefined}>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-input focus:bg-bark focus:px-4 focus:py-2 focus:text-bone"
+        >
+          Skip to content
+        </a>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -94,14 +87,10 @@ export function Layout({children}: {children: React.ReactNode}) {
 }
 
 export default function App({loaderData}: Route.ComponentProps) {
-  // The Studio is not the previewed page. Overlays and the exit-preview button
-  // must not render inside it.
-  const isStudio = useLocation().pathname.startsWith('/studio')
-
   return (
     <>
       <Outlet />
-      {loaderData?.inPreviewFrame && !isStudio ? (
+      {loaderData?.inPreviewFrame ? (
         <>
           <Suspense fallback={null}>
             <VisualEditing />

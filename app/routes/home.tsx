@@ -56,7 +56,7 @@ function EmptyState() {
         publish it.
       </p>
       <a
-        href="/studio"
+        href="/studio/"
         className="mt-8 inline-flex rounded-pill bg-bark px-6 py-3 text-bone no-underline"
       >
         Open Studio

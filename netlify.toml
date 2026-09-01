@@ -5,6 +5,39 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# ---------------------------------------------------------------------------
+# Sanity Studio
+#
+# `npm run build` compiles the Studio with the Sanity CLI into
+# build/client/studio, inside the publish directory. Static files there are
+# served ahead of the SSR function, so /studio/ resolves to its own index.html
+# without any rule. These three cover the cases that do not.
+# ---------------------------------------------------------------------------
+
+# A bare /studio matches neither the splat below nor any file, so it would fall
+# through to the SSR function and render the site's 404 shell. The Studio lives
+# at /studio/ with the trailing slash — in `sanity dev` too.
+# This must stay above the splat rule: first match wins.
+[[redirects]]
+  from = "/studio"
+  to = "/studio/"
+  status = 301
+
+# The Studio routes client-side, so /studio/structure and friends have no file
+# on disk. Serve its index.html and let the Studio read the URL itself. Real
+# files — the bundles under /studio/static — still take precedence over this.
+[[redirects]]
+  from = "/studio/*"
+  to = "/studio/index.html"
+  status = 200
+
+# `sanity build` applies the base path to its script tags but leaves the favicon
+# and web manifest links at /static/*. Nothing else on this site uses /static.
+[[redirects]]
+  from = "/static/*"
+  to = "/studio/static/:splat"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
@@ -16,6 +49,14 @@
 # Hashed build assets are immutable.
 [[headers]]
   for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The Studio's bundles are hashed too. Scoped to *.js on purpose: that same
+# directory holds the unhashed favicons and web manifest, which must stay
+# revalidatable.
+[[headers]]
+  for = "/studio/static/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 

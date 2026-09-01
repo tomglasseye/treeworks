@@ -3,22 +3,37 @@
 Replaces the WordPress site at treeworkscornwall.co.uk.
 
 **Stack:** Sanity (page-builder CMS) · React Router 8 in framework/SSR mode · Tailwind v4 · Netlify.
-Studio is embedded in the same repo and served at `/studio`.
+
+Two packages, one deploy. The site is at the root; the Studio is a separate npm
+package in `studio/`, compiled by the Sanity CLI and served as static files from
+the same Netlify site at `/studio`. See [The Studio is its own package](#the-studio-is-its-own-package)
+for why.
 
 ## Running it
 
 ```bash
 npm install
-npm run dev          # site at :5173, Studio at :5173/studio
+npm --prefix studio install   # once — the Studio has its own dependencies
+npm run dev                   # site at :5173, Studio at :5173/studio/
 ```
 
+`npm run dev` starts both servers: React Router on :5173 and `sanity dev` on
+:3333, with Vite proxying `/studio` onto :5173 so they share an origin. Note the
+trailing slash — `sanity dev` serves the Studio at `/studio/`, and a bare
+`/studio` 404s there exactly as it would on Netlify without the redirect rule.
+
 `.env` is already pointed at the live Sanity project (`bb392mn5` / `production`).
+The Studio reads its own `studio/.env`, but does not need one: the project and
+dataset have literal fallbacks in `studio/sanity.config.ts`.
 
 | Script | What it does |
 |---|---|
-| `npm run dev` | Dev server |
-| `npm run build` | Production build |
-| `npm run typecheck` | Route typegen + `tsc` |
+| `npm run dev` | Both dev servers, site and Studio, on one origin |
+| `npm run dev:site` / `dev:studio` | One of them on its own |
+| `npm run build` | Site, then the Studio into `build/client/studio` |
+| `npm run build:studio` | Just the Studio (installs its dependencies first) |
+| `npm run preview` | Serve the production build locally, reading `.env` |
+| `npm run typecheck` | Route typegen + `tsc`, both packages |
 | `npm run check:forms` | Fails if the contact form and `public/__forms.html` drift apart |
 
 ## How the page builder works
@@ -165,11 +180,17 @@ without which the page gains a horizontal scrollbar.
 Nothing has real photography yet. To fill every empty image field with one
 placeholder so the layouts can be judged:
 
+The script runs inside the Studio's Sanity context, so it lives in `studio/` and
+is run from there:
+
 ```bash
-npx sanity exec scripts/seed-placeholder-image.mjs --with-user-token -- --dry-run   # see what it would do
-npx sanity exec scripts/seed-placeholder-image.mjs --with-user-token                # do it
-npx sanity exec scripts/seed-placeholder-image.mjs --with-user-token -- --clear     # undo
+npm --prefix studio run seed:placeholder -- -- --dry-run   # see what it would do
+npm --prefix studio run seed:placeholder                   # do it
+npm --prefix studio run seed:placeholder -- -- --clear     # undo
 ```
+
+(The doubled `--` is npm passing arguments through to `sanity exec`, which then
+passes them to the script.)
 
 It uploads the image once, reuses that asset on re-runs, and **only fills fields
 that are still empty** — so as real photos go in, re-running tops up the gaps
@@ -185,13 +206,16 @@ ship: alt text describing bamboo on a Cornish tree surgery page helps nobody.
 Open Studio → **Presentation**. The site renders in an iframe beside the content,
 edits appear as you type, and clicking anything in the preview jumps to that field.
 
-**There is no port to configure.** That is deliberate. The usual setup runs Studio on
-:3333 and the site on :5173, which means a `previewUrl.origin`, a CORS entry, and two
-dev servers that have to agree — and it all breaks again in production. Here the Studio
-is *inside* the site at `/studio`, so the preview target is the same origin the Studio is
-already on. `previewUrl.origin` is left undefined on purpose: Presentation then uses its
-own origin, which is correct in dev, on a Netlify deploy preview, and in production,
-without anything being set.
+**There is no origin to configure.** The Studio does run on its own port in
+development (:3333), but Vite proxies it onto the site's origin at `/studio`, and
+in production Netlify serves it from the same host. Either way the preview target
+is the origin the Studio is already on, so `previewUrl.origin` is left undefined
+on purpose: Presentation then uses its own origin, which is correct in dev, on a
+Netlify deploy preview, and in production, without anything being set.
+
+This is also why the proxy exists rather than just opening :3333 directly. The
+draft-mode cookie is same-origin; a Studio on a different origin cannot set it,
+and Presentation would show published content with nothing editable.
 
 The one exception is a standalone Studio at `*.sanity.studio`, which genuinely is a
 different host. Only then set `SANITY_STUDIO_PREVIEW_ORIGIN` (and add that origin to
@@ -206,8 +230,10 @@ sanity.io/manage → the project → API → Tokens → Add token → Viewer. Th
 SANITY_API_READ_TOKEN=<the token>
 ```
 
-in `.env` locally and in Netlify's environment variables. Without it, `/api/preview/enable`
-returns a 501 telling you exactly that, and the site keeps serving published content.
+in `.env` locally and in Netlify's environment variables. Without it — or with a
+token Sanity rejects — `/api/preview/enable` still redirects, so Presentation shows
+published content rather than a blank pane, and a notice inside the preview iframe
+says why. `/api/preview/status` reports the details.
 
 ### Why published reads are unauthenticated
 
@@ -219,15 +245,11 @@ token-carrying client, one revoked or mistyped token takes every page down with
 `loadContent()` also falls back to published content if Sanity rejects the token
 mid-preview, and logs why. A stale token should degrade preview, never 500 the site.
 
-Quick check on whether a token is good:
-
-```
-curl -s -o /dev/null -w "%{http_code}\n" \
-  "http://localhost:5173/api/preview/enable?sanity-preview-secret=probe"
-```
-
-`401` = token works (Sanity was reached, it just refused the fake secret).
-`503` = token rejected — make a new one. `501` = no token configured.
+Quick check on whether a token is good — open `/api/preview/status`. It reports
+whether one is configured, whether Sanity accepts it, and a fingerprint of the
+value (never the value itself) so you can tell a rejected token apart from a dev
+server that has not been restarted since `.env` changed. Those two look identical
+from the outside and are the usual cause of "Presentation stopped working".
 
 ### Draft mode is confined to the Studio iframe
 
@@ -268,29 +290,75 @@ silently render with default layouts, in preview only.
 
 Every existing section already does this. New ones should too.
 
-## Publishing the Studio
+## The Studio is its own package
 
-Two separate things, both run from this repo with the Sanity CLI (they need your
-own `sanity login`, so they aren't scripted here):
+`studio/` is a separate npm package with its own `package.json` and lockfile,
+holding `sanity`, `@sanity/vision`, `@sanity/icons` and `styled-components`. The
+site's package holds `@sanity/client`, `@sanity/react-loader`,
+`@sanity/visual-editing` and `@portabletext/react`. Nothing crosses over.
+
+It used to be a route in this app — `route('studio/*')` rendering `<Studio
+config={config}/>`. Two reasons it is not any more:
+
+- **Auto-updates.** Sanity ships Studio patches to a built bundle without a
+  redeploy, and that is documented as unsupported for third-party build tools and
+  embedded Studios. Compiled by the CLI, the Studio patches itself; bundled into
+  the site's React build, it only moved when someone bumped the dependency.
+- **Version coupling.** The embedded Studio shared the site's React and
+  styled-components. Now each package pins what it needs.
+
+The URL did not change. `npm run build` builds the site, then builds the Studio
+into `build/client/studio` — inside the publish directory, so Netlify serves it
+as static files from the same deploy.
+
+### The routing rules, and why each exists
+
+Three rules in `netlify.toml`, in this order:
+
+| Rule | Why |
+|---|---|
+| `/studio` → `/studio/` (301) | The Studio lives at the trailing slash, in `sanity dev` too. This normalises the URL before the Studio's own router sees it. |
+| `/studio/*` → `/studio/index.html` (200) | The Studio routes client-side, so `/studio/structure` has no file on disk and would otherwise reach the SSR function and 404. |
+| `/static/*` → `/studio/static/:splat` (200) | `sanity build` applies the base path to its script and stylesheet tags but leaves the favicon and web manifest `<link>`s at `/static/*`. Confirmed against the built `index.html`. |
+
+All three depend on Netlify serving an existing file ahead of a non-forced
+redirect — otherwise `/studio/` would 301 to itself forever and the bundles under
+`/studio/static` would return `index.html`. That is the same precedence every
+single-page-app rewrite relies on.
+
+The base path is set **once**, as `project.basePath` in `studio/sanity.cli.ts`.
+Do not also set `basePath` in `sanity.config.ts`: that one is the workspace base
+path, Sanity joins the two, and the Studio ends up at `/studio/studio`.
+
+### Publishing
 
 ```bash
-npx sanity schema deploy   # publishes the schema so Sanity tooling knows the types
-npx sanity deploy          # publishes a hosted Studio at treeworks-cornwall.sanity.studio
+npm run schema:deploy    # publishes the schema so Sanity tooling knows the types
+npm run studio:deploy    # optional: a hosted Studio at treeworks-cornwall.sanity.studio
 ```
 
-`npx sanity deploy` is optional. The Studio is already embedded in this app at
-`/studio`, so once the Netlify site is live you have a Studio there either way.
-A hosted one is useful before that — it gives the client somewhere to edit
-without waiting on the frontend deploy.
+Both need your own `sanity login`. The hosted copy is optional — the Netlify site
+serves a Studio at `/studio` either way — but it gives the client somewhere to
+edit before the frontend is live.
 
-`basePath` switches automatically: `/studio` for the embedded route, `/` for the
-standalone deploy (via `SANITY_STUDIO_BASE_PATH` in `.env`, which only the Sanity
-CLI build can see).
+That copy is served from its host's root rather than `/studio`, so
+`npm run studio:deploy` sets `SANITY_STUDIO_BASE_PATH=/` for that one command
+(`studio/scripts/deploy-standalone.mjs`). Deliberately not set in any env file:
+there it would silently break the Netlify build and every local `npm run build`.
+It also needs `SANITY_STUDIO_PREVIEW_ORIGIN` set to the site's URL, and that
+origin added to CORS, because it genuinely is a different host.
 
 ## Deploying
 
-Netlify, building from this repo. `netlify.toml` is configured. Set these environment
-variables in the Netlify UI:
+Netlify, building from this repo. `netlify.toml` is configured; the build command
+is `npm run check:forms && npm run build`, and `build` chains the Studio after the
+site (that order matters — `react-router build` clears `build/client`, which is
+where the Studio lands).
+
+Netlify installs the root package only, which is why `build:studio` runs its own
+`npm ci` inside `studio/` first.
+
+Set these environment variables in the Netlify UI:
 
 ```
 VITE_SANITY_PROJECT_ID=bb392mn5
@@ -298,7 +366,17 @@ VITE_SANITY_DATASET=production
 VITE_SANITY_API_VERSION=2026-08-01
 VITE_SANITY_STUDIO_URL=/studio
 VITE_BEHOLD_FEED_URL=<your feed url>
+SANITY_API_READ_TOKEN=<Viewer token, for Presentation>
+PREVIEW_COOKIE_SECRET=<long random string>
 ```
+
+`PREVIEW_COOKIE_SECRET` is required: the server refuses to boot in production
+without it rather than signing draft-access cookies with a secret published in
+this repository.
+
+The Studio's own project and dataset are not listed — they are literals in
+`studio/sanity.config.ts` and `studio/sanity.cli.ts`, because `.env` is gitignored
+and the build has no env file to read.
 
 Then add the deploy URL as a CORS origin in the Sanity project settings.
 

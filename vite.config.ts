@@ -11,8 +11,23 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
-  build: {
-    // Sanity Studio is large; it is code-split onto its own route.
-    chunkSizeWarningLimit: 3000,
+  server: {
+    /*
+      The Studio is a separate application now, served by `sanity dev` on 3333.
+      Proxying it onto this origin keeps development matching production, where
+      Netlify serves the built Studio from the same host — same-origin is what
+      lets the Presentation iframe and the draft-mode cookie work at all.
+
+      `sanity dev` serves at /studio/ with a trailing slash; a bare /studio is a
+      404 there, exactly as it is on Netlify.
+
+      /static is not a typo: `sanity build` half-applies the base path and
+      leaves the favicon and web manifest pointing at /static/*. Netlify has a
+      rewrite for it, so dev has a proxy for it.
+    */
+    proxy: {
+      '/studio': {target: 'http://localhost:3333', ws: true},
+      '/static': {target: 'http://localhost:3333', ws: false},
+    },
   },
 })
