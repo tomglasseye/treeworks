@@ -328,6 +328,12 @@ redirect — otherwise `/studio/` would 301 to itself forever and the bundles un
 `/studio/static` would return `index.html`. That is the same precedence every
 single-page-app rewrite relies on.
 
+`sanity build` warns that no `appId` is configured, which means the Studio tracks
+the latest auto-update channel rather than a version you pin. That is fine to
+start with. To pin one, take the app id from
+sanity.io/manage → the project → Studios and add it under `deployment` in
+`studio/sanity.cli.ts`.
+
 The base path is set **once**, as `project.basePath` in `studio/sanity.cli.ts`.
 Do not also set `basePath` in `sanity.config.ts`: that one is the workspace base
 path, Sanity joins the two, and the Studio ends up at `/studio/studio`.
