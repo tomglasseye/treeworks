@@ -18,9 +18,11 @@ npm run dev                   # site at :5173, Studio at :5173/studio/
 ```
 
 `npm run dev` starts both servers: React Router on :5173 and `sanity dev` on
-:3333, with Vite proxying `/studio` onto :5173 so they share an origin. Note the
-trailing slash — `sanity dev` serves the Studio at `/studio/`, and a bare
-`/studio` 404s there exactly as it would on Netlify without the redirect rule.
+:3333, with Vite proxying `/studio` onto :5173 so they share an origin. The proxy
+mirrors what Netlify does in production, so the URLs behave the same in both:
+`/studio` redirects to `/studio/`, and `/static/*` is rewritten to the Studio's
+copy. Saving a Studio file reloads only the Studio — the site's watcher ignores
+`studio/`.
 
 `.env` is already pointed at the live Sanity project (`bb392mn5` / `production`).
 The Studio reads its own `studio/.env`, but does not need one: the project and
