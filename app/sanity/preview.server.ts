@@ -25,11 +25,11 @@ import { loadQuery, previewAuthClient, publicClient } from "./loader.server";
  * silently trusts a known secret is worse than one that will not start.
  */
 function cookieSecret(): string {
-	const secret = process.env.PREVIEW_COOKIE_SECRET;
+	const secret = process.env.PREVIEW_SESSION_SECRETT;
 	if (secret) return secret;
 	if (process.env.NODE_ENV === "production") {
 		throw new Error(
-			"PREVIEW_COOKIE_SECRET is not set. Add it to the deploy environment — " +
+			"PREVIEW_SESSION_SECRETT is not set. Add it to the deploy environment — " +
 				"it signs the cookies that grant draft access.",
 		);
 	}

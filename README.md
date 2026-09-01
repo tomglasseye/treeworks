@@ -272,7 +272,7 @@ token therefore costs you draft content, not the whole Presentation connection.
 Validation failures never grant drafts — but they do still redirect to the page, so
 Presentation shows published content rather than a blank pane.
 
-Set `PREVIEW_COOKIE_SECRET` in production to sign the cookie with something other than
+Set `PREVIEW_SESSION_SECRETT` in production to sign the cookie with something other than
 the dev default.
 
 ### The stega trap
@@ -374,10 +374,10 @@ VITE_SANITY_API_VERSION=2026-08-01
 VITE_SANITY_STUDIO_URL=/studio
 VITE_BEHOLD_FEED_URL=<your feed url>
 SANITY_VIEWER_TOKEN=<Viewer token, for Presentation>
-PREVIEW_COOKIE_SECRET=<long random string>
+PREVIEW_SESSION_SECRETT=<long random string>
 ```
 
-`PREVIEW_COOKIE_SECRET` is required: the server refuses to boot in production
+`PREVIEW_SESSION_SECRETT` is required: the server refuses to boot in production
 without it rather than signing draft-access cookies with a secret published in
 this repository.
 
