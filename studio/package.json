@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "sanity dev",
-    "build": "sanity build",
+    "build": "sanity build -y",
     "deploy": "node scripts/deploy-standalone.mjs",
     "schema:deploy": "sanity schema deploy",
     "seed:placeholder": "sanity exec scripts/seed-placeholder-image.mjs --with-user-token",
