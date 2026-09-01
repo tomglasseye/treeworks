@@ -28,11 +28,11 @@ export function PreviewNotice({status}: {status: PreviewNoticeStatus}) {
         {status.reason === 'stale' ? (
           <>
             <p className="mt-1 text-bone/80">
-              <code className="text-sap">.env</code> holds a newer token than this dev server
+              <code className="rounded bg-bone/15 px-1 py-0.5 text-bone">.env</code> holds a newer token than this dev server
               started with. Env vars are only read at startup.
             </p>
             <p className="mt-2 text-bone/80">
-              Stop the dev server and run <code className="text-sap">npm run dev</code> again.
+              Stop the dev server and run <code className="rounded bg-bone/15 px-1 py-0.5 text-bone">npm run dev</code> again.
             </p>
           </>
         ) : (
@@ -40,12 +40,12 @@ export function PreviewNotice({status}: {status: PreviewNoticeStatus}) {
             <p className="mt-1 text-bone/80">
               {status.reason === 'missing' ? (
                 <>
-                  No <code className="text-sap">SANITY_API_READ_TOKEN</code> is set, so drafts
+                  No <code className="rounded bg-bone/15 px-1 py-0.5 text-bone">SANITY_API_READ_TOKEN</code> is set, so drafts
                   cannot be loaded and nothing on the page is clickable.
                 </>
               ) : (
                 <>
-                  Sanity rejected <code className="text-sap">SANITY_API_READ_TOKEN</code>, so drafts
+                  Sanity rejected <code className="rounded bg-bone/15 px-1 py-0.5 text-bone">SANITY_API_READ_TOKEN</code>, so drafts
                   cannot be loaded and nothing on the page is clickable.
                 </>
               )}
@@ -64,7 +64,7 @@ export function PreviewNotice({status}: {status: PreviewNoticeStatus}) {
               ) : (
                 'project'
               )}
-              , paste it into <code className="text-sap">.env</code>, then restart the dev server.
+              , paste it into <code className="rounded bg-bone/15 px-1 py-0.5 text-bone">.env</code>, then restart the dev server.
             </p>
           </>
         )}

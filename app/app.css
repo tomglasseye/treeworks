@@ -13,10 +13,11 @@
   --color-lichen: #cfd6bc;    /* light panel tint */
   --color-lichen-soft: #e2e7d5;
   --color-bone: #fbf9f1;      /* page ground */
-  --color-sap: #b4703a;       /* warm accent — emergency only */
+  --color-sap: #b4703a;       /* warm accent: fills and tints, never text */
   --color-sap-soft: #c98a52;
+  --color-sap-ink: #7a4c27;   /* the accent as TEXT — sap itself is 2.6:1 on lichen */
   --color-ink: #23291f;       /* body text */
-  --color-muted: #6b7361;     /* secondary text, captions */
+  --color-muted: #565c4e;     /* secondary text, captions — 4.6:1 on lichen */
   --color-rule: #ddd9c9;      /* hairlines */
 
   /* Type --------------------------------------------------------------- */

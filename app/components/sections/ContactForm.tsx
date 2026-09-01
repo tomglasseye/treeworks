@@ -172,7 +172,7 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
             {consentText ? <p className={`text-sm ${muted}`}>{consentText}</p> : null}
 
             {state === 'error' ? (
-              <p role="alert" className="rounded-input bg-sap/15 px-4 py-3 text-sm text-sap">
+              <p role="alert" className="rounded-input bg-sap/10 px-4 py-3 text-sm text-sap-ink">
                 Something went wrong sending that. Please try again, or call{' '}
                 {settings?.phone ?? 'us'} instead.
               </p>

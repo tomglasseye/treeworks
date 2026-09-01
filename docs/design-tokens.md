@@ -41,7 +41,7 @@ Shifted warmer and darker than Solterra — Cornish woodland rather than Québec
 | `--color-bone` | `#FBF9F1` | Page ground |
 | `--color-sap` | `#B4703A` | Warm accent — emergency CTA, chainsaw-orange nod, used sparingly |
 | `--color-ink` | `#23291F` | Body text |
-| `--color-muted` | `#6B7361` | Secondary text, captions |
+| `--color-muted` | `#565C4E` | Secondary text, captions (4.6:1 on lichen) |
 | `--color-rule` | `#DDD9C9` | Hairlines |
 
 `--color-sap` earns its place: a tree surgeon has a genuine 24/7 emergency service, and it needs a colour that isn't green.
@@ -86,7 +86,7 @@ Clamp the top three for mobile — 72px must not ship to a 390px viewport.
   --color-bone:   #FBF9F1;
   --color-sap:    #B4703A;
   --color-ink:    #23291F;
-  --color-muted:  #6B7361;
+  --color-muted:  #565C4E;
   --color-rule:   #DDD9C9;
 
   --font-display: "Fraunces", Georgia, serif;

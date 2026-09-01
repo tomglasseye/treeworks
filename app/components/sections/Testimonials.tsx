@@ -6,7 +6,7 @@ import {Reveal} from '../ui/Reveal'
 function Stars({rating}: {rating?: number}) {
   if (!rating) return null
   return (
-    <p className="mb-4 text-sap" aria-label={`${rating} out of 5`}>
+    <p className="mb-4 text-sap-ink" aria-label={`${rating} out of 5`}>
       <span aria-hidden>{'★'.repeat(rating)}</span>
     </p>
   )

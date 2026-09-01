@@ -16,7 +16,7 @@ export function CallToAction({section, settings}: {section: CallToActionSection;
   // section tone. Getting this wrong is how you end up with bark on bark.
   const onDarkPanel = urgent || panelTone === 'bark'
   const panel = urgent
-    ? 'bg-sap text-bone'
+    ? 'bg-sap-ink text-bone'
     : panelTone === 'bark'
       ? 'bg-bark text-bone'
       : 'bg-lichen text-bark'
