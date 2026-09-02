@@ -113,7 +113,7 @@ export function Header({
 									className="hidden items-center gap-2 whitespace-nowrap text-base text-ink no-underline transition-colors hover:text-canopy md:inline-flex"
 								>
 									{phone}
-									<PhoneIcon className="h-4 w-4" />
+									{/* <PhoneIcon className="h-4 w-4" /> */}
 								</a>
 							) : null}
 						</span>
@@ -124,7 +124,7 @@ export function Header({
 							<a
 								href={telHref(phone)}
 								aria-label={`Call ${settings?.phoneLabel ?? "us"} on ${phone}`}
-								className={`inline-flex h-10 w-10 items-center justify-center rounded-pill border border-rule text-ink transition-opacity duration-200 md:hidden ${
+								className={`inline-flex h-10 w-10 items-center justify-center text-ink transition-opacity duration-200 md:hidden ${
 									open
 										? "pointer-events-none opacity-0"
 										: "opacity-100"
@@ -232,7 +232,7 @@ function MenuOverlay({
 								? `Call ${settings.phoneLabel}: `
 								: "Call "}
 							{phone}
-							<PhoneIcon className="h-6 w-6" />
+							{/* <PhoneIcon className="h-6 w-6" /> */}
 						</a>
 					) : null}
 
