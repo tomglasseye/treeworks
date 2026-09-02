@@ -1,6 +1,6 @@
 import type {ImageBannerSection} from '~/types'
 import {Figure} from '../ui/Figure'
-import {opt} from '~/lib/stega'
+import {Section as Wrapper} from '../ui/Section'
 
 const HEIGHTS: Record<string, string> = {
   short: 'h-[32vh] min-h-[16rem]',
@@ -12,8 +12,13 @@ export function ImageBanner({section}: {section: ImageBannerSection}) {
   const {image, height = 'medium', overlayText, appearance} = section
 
   return (
-    <section id={opt(appearance?.anchorId)} className="bg-bone py-4">
-      <div className="u-container">
+    // Section's own spacing presets (py-12 and up) are all bigger than the
+    // 16px break this banner is meant to be, so the gap is kept on an inner
+    // wrapper instead — that leaves the outer section at 'none' (py-0) with
+    // nothing conflicting on the same element, while still honouring an
+    // editor's explicit spacing choice if they've set one.
+    <Wrapper appearance={{...appearance, spacing: appearance?.spacing ?? 'none'}} grainSeed={section._key}>
+      <div className="py-4">
         <div className="relative overflow-hidden rounded-panel">
           <Figure
             image={image}
@@ -31,6 +36,6 @@ export function ImageBanner({section}: {section: ImageBannerSection}) {
           ) : null}
         </div>
       </div>
-    </section>
+    </Wrapper>
   )
 }
