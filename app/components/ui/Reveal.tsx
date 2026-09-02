@@ -25,7 +25,7 @@ function getObserver() {
 		// Hold off until the element is meaningfully on screen. Firing early meant
 		// the animation finished before it was in view — technically running, but
 		// invisible, which is the same as not having it.
-		{ rootMargin: "0px 0px -15% 0px", threshold: 0.1 },
+		{ rootMargin: "0px 0px -5% 0px", threshold: 0.05 },
 	);
 	return observer;
 }
