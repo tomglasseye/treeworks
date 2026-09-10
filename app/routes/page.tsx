@@ -7,6 +7,7 @@ import {SectionRenderer} from '~/components/SectionRenderer'
 import {SiteLayout} from '~/components/SiteLayout'
 import {Prose} from '~/components/ui/Prose'
 import {buildMeta} from '~/seo'
+import {siteUrl} from '~/siteUrl.server'
 import type {PageDoc, SiteData} from '~/types'
 
 export async function loader({request, params}: Route.LoaderArgs) {
@@ -35,6 +36,7 @@ export async function loader({request, params}: Route.LoaderArgs) {
     query: SLUG_QUERY,
     params: queryParams,
     preview,
+    siteUrl: siteUrl(request),
   }
 }
 
@@ -43,7 +45,7 @@ export function meta({loaderData}: Route.MetaArgs) {
 }
 
 export default function Page({loaderData}: Route.ComponentProps) {
-  const {initial, site, query, params, preview} = loaderData
+  const {initial, site, query, params, preview, siteUrl} = loaderData
 
   const {data} = useQuery<PageDoc | null>(query, params, {initial})
   const page = (preview ? (data ?? initial.data) : initial.data) as PageDoc
@@ -51,7 +53,7 @@ export default function Page({loaderData}: Route.ComponentProps) {
   const isLocation = page._type === 'locationPage'
 
   return (
-    <SiteLayout site={site}>
+    <SiteLayout site={site} siteUrl={siteUrl} page={page}>
       <SectionRenderer sections={page.sections} settings={site?.settings} />
 
       {isLocation && page.localIntro ? (

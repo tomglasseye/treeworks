@@ -54,6 +54,15 @@ export const links: Route.LinksFunction = () => [
     href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Mulish:wght@400..700&display=swap',
   },
   {rel: 'stylesheet', href: stylesheet},
+
+  // All generated from public/favicon.svg by `npm run build:icons`.
+  // The SVG is listed alongside the .ico rather than instead of it: evergreen
+  // browsers prefer the SVG, while feed readers and link-preview scrapers still
+  // probe /favicon.ico blindly.
+  {rel: 'icon', href: '/favicon.ico', sizes: '32x32'},
+  {rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml'},
+  {rel: 'apple-touch-icon', href: '/apple-touch-icon.png'},
+  {rel: 'manifest', href: '/site.webmanifest'},
 ]
 
 export function Layout({children}: {children: React.ReactNode}) {
@@ -63,6 +72,10 @@ export function Layout({children}: {children: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Tints the browser chrome on Android and iOS Safari to match the
+            footer, so the site reads as one surface rather than a page floating
+            in someone else's UI. */}
+        <meta name="theme-color" content="#2c3a2a" />
         <Meta />
         <Links />
         {/* Marks that JS is running, so scroll-reveal only hides content it can

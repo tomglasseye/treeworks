@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Treeworks Cornwall">
+  <!--
+    Master icon. Every PNG and the .ico are generated from this file by
+    scripts/build-icons.mjs — edit here, then run `npm run build:icons`.
+
+    The bark ground is deliberately opaque rather than transparent: a bone tree
+    on nothing would disappear against a light browser tab, and iOS composites
+    transparent touch icons onto black. An opaque tile is legible everywhere and
+    needs no light/dark variant.
+
+    Shape count is kept low on purpose. At 16px each viewBox unit is a quarter
+    of a pixel, so detail turns to mud — the canopy is three overlapping circles
+    reading as one mass, and the trunk stays chunky enough (7 units ≈ 1.75px) to
+    survive the downscale.
+  -->
+  <rect width="64" height="64" rx="14" fill="#2c3a2a"/>
+  <g fill="#fbf9f1">
+    <rect x="28.5" y="29" width="7" height="23" rx="3"/>
+    <circle cx="32" cy="24" r="13.5"/>
+    <circle cx="20.5" cy="30" r="9.5"/>
+    <circle cx="43.5" cy="30" r="9.5"/>
+  </g>
+</svg>

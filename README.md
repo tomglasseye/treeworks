@@ -202,6 +202,60 @@ keys off and what makes them obvious in Studio. The alt text is deliberately
 useless ("Placeholder — looking up through a bamboo grove…") so it can't quietly
 ship: alt text describing bamboo on a Cornish tree surgery page helps nobody.
 
+## Icons and structured data
+
+### Icons come from one file
+
+`public/favicon.svg` is the master — a bone tree on a bark tile. Everything else
+is generated from it:
+
+```bash
+npm run build:icons    # after editing public/favicon.svg
+```
+
+That writes `favicon.ico`, `apple-touch-icon.png` (iOS), and `icon-192/512.png`
+(Android and the manifest) into `public/`. The output is **committed**, so a
+deploy never runs this and `sharp` stays a devDependency Netlify never builds.
+
+Two things in `scripts/build-icons.mjs` look odd and are deliberate. It raises
+sharp's `density` per target size, because sharp rasterises an SVG at its natural
+size before resizing — without it, the 512px icon is a blurry upscale of a 64px
+bitmap. And it assembles the `.ico` container by hand (sharp cannot write ICO,
+and the format is a 6-byte header plus one entry wrapping a PNG), then parses it
+back and asserts the result, because a malformed icon renders as a blank tab
+rather than an error.
+
+The tile is opaque on purpose: a transparent icon vanishes against a light
+browser tab, and iOS composites transparent touch icons onto black.
+
+### What we emit, and where
+
+| Schema | Where | Why there |
+|---|---|---|
+| `LocalBusiness` | Homepage only | Describes the organisation, not the page. Repeating it site-wide gives Google several copies of one entity to reconcile. |
+| `BreadcrumbList` | Every page except home | Google swaps the raw URL in a result for a readable trail. Omitted on the homepage — a one-item trail describes nothing. |
+| `FAQPage` | Any page with an FAQ section | Eligible for the expandable Q&A result. |
+
+All of it is run through `stegaClean` first. Structured data is machine-read, and
+stega markers are invisible characters that would corrupt it — see
+[The stega trap](#the-stega-trap).
+
+Absolute URLs are mandatory in both `sitemap.xml` and JSON-LD `item` values, and
+a relative one is *ignored rather than rejected*. `app/siteUrl.server.ts` is the
+single source of that origin, shared by the sitemap, robots and both schemas.
+
+To check it all actually renders, with the dev server running:
+
+```bash
+npm run check:seo
+```
+
+It fetches the real pages, parses every JSON-LD block, and asserts the icons are
+served as the formats they claim. It also fails on any `null` property: a GROQ
+projection returns null for an unset field, `JSON.stringify` keeps null while
+dropping `undefined`, and `"image": null` asserts the business *has* no image
+rather than saying nothing.
+
 ## Live preview (Presentation)
 
 Open Studio → **Presentation**. The site renders in an iframe beside the content,

@@ -5,6 +5,7 @@ import {HOME_QUERY, SITE_QUERY} from '~/sanity/queries'
 import {SectionRenderer} from '~/components/SectionRenderer'
 import {SiteLayout} from '~/components/SiteLayout'
 import {buildMeta} from '~/seo'
+import {siteUrl} from '~/siteUrl.server'
 import type {PageDoc, SiteData} from '~/types'
 
 export async function loader({request}: Route.LoaderArgs) {
@@ -20,6 +21,7 @@ export async function loader({request}: Route.LoaderArgs) {
     query: HOME_QUERY,
     params: {},
     preview,
+    siteUrl: siteUrl(request),
   }
 }
 
@@ -28,7 +30,7 @@ export function meta({loaderData}: Route.MetaArgs) {
 }
 
 export default function Home({loaderData}: Route.ComponentProps) {
-  const {initial, site, query, params, preview} = loaderData
+  const {initial, site, query, params, preview, siteUrl} = loaderData
 
   // In preview this re-renders live as the dataset changes; outside preview it
   // just hands back the server data untouched.
@@ -36,7 +38,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
   const page = preview ? (data ?? initial.data) : initial.data
 
   return (
-    <SiteLayout site={site} includeJsonLd>
+    <SiteLayout site={site} siteUrl={siteUrl} includeJsonLd>
       {page ? (
         <SectionRenderer sections={page.sections} settings={site?.settings} />
       ) : (

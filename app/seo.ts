@@ -45,12 +45,18 @@ export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
+    // A stable identity for the business, so any other structured data on the
+    // site can point at this node instead of describing it a second time.
+    '@id': siteUrl ? `${siteUrl}/#business` : undefined,
     name: settings.businessName,
     description: settings.tagline,
     telephone: settings.phone,
     email: settings.email,
     url: siteUrl,
-    image: settings.logoUrl,
+    // The GROQ projection yields null rather than undefined when no logo has
+    // been uploaded, and JSON.stringify keeps null while dropping undefined —
+    // so without this the output carries a dead "image": null property.
+    image: settings.logoUrl ?? undefined,
     address: settings.address
       ? {
           '@type': 'PostalAddress',
@@ -73,5 +79,38 @@ export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
       settings.instagramHandle ? `https://instagram.com/${settings.instagramHandle}` : null,
       settings.facebookUrl ?? null,
     ].filter(Boolean),
+  }
+}
+
+/**
+ * Breadcrumb trail for a single page.
+ *
+ * Google uses this to replace the bare URL in a search result with a readable
+ * trail, so it earns its place even though the site has no visible breadcrumb
+ * UI and no nesting to describe — every page sits one level under the
+ * homepage, and that is exactly what this says.
+ *
+ * Returns null for the homepage: a single-item trail describes nothing, and
+ * Google discards it.
+ */
+export function breadcrumbJsonLd(page: PageDoc | null | undefined, siteUrl: string) {
+  if (!page || page.isHomepage) return null
+
+  // Same reason as above — stega markers are invisible characters that would
+  // ride along into the breadcrumb text Google reads.
+  const slug = stegaClean(page.slug)
+  // seo.title is deliberately not used: it carries the "| Treeworks Cornwall"
+  // suffix meant for a browser tab, which would read as a duplicate inside a
+  // trail that already starts at the site root.
+  const name = stegaClean(page.title)
+  if (!slug || !name) return null
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {'@type': 'ListItem', position: 1, name: 'Home', item: `${siteUrl}/`},
+      {'@type': 'ListItem', position: 2, name, item: `${siteUrl}/${slug}`},
+    ],
   }
 }

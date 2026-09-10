@@ -1,4 +1,5 @@
 import {publicClient} from '~/sanity/loader.server'
+import {siteUrl} from '~/siteUrl.server'
 
 type Entry = {slug: string; isHomepage?: boolean; updatedAt: string; noIndex?: boolean}
 
@@ -14,13 +15,6 @@ const SITEMAP_QUERY = /* groq */ `
     "updatedAt": _updatedAt
   } | order(slug asc)
 `
-
-function siteUrl(request: Request) {
-  // Netlify sets URL/DEPLOY_PRIME_URL; fall back to the request's own origin so
-  // this is correct in dev, on deploy previews and in production without config.
-  const configured = process.env.SITE_URL ?? process.env.URL
-  return (configured ?? new URL(request.url).origin).replace(/\/$/, '')
-}
 
 export async function loader({request}: {request: Request}) {
   const origin = siteUrl(request)
