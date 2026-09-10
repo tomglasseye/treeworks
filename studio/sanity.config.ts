@@ -2,6 +2,7 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {presentationTool} from 'sanity/presentation'
 import {visionTool} from '@sanity/vision'
+import {media} from 'sanity-plugin-media'
 import {schemaTypes} from './schemaTypes'
 import {structure, SINGLETONS} from './structure'
 import {resolve} from './presentation/resolve'
@@ -50,6 +51,15 @@ export default defineConfig({
       },
     }),
     structureTool({structure}),
+    /**
+     * Asset browser. Adds a top-level Media tool for batch uploads, tagging and
+     * folders, and registers itself as an extra source in every image and file
+     * field so the same library is reachable from inside a document.
+     *
+     * This is the community plugin, not Sanity's hosted Media Library — that one
+     * is an Enterprise add-on and is not among this project's features.
+     */
+    media(),
     visionTool(),
   ],
 
