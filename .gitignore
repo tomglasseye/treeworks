@@ -8,3 +8,7 @@ build
 *.log
 studio/dist
 lighthouse.report.*
+
+# Local agent settings. Ignored because its permission allowlist records whole
+# commands verbatim, which means any token pasted into one ends up in here.
+.claude/
