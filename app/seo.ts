@@ -8,6 +8,21 @@ import {urlFor} from './sanity/image'
  */
 export type SeoContext = {canonicalUrl?: string; indexable?: boolean}
 
+/**
+ * A crop of the image at exactly this size. `fit('crop')` with the focal point
+ * matters: with only a width and a height the CDN shrinks the picture to fit
+ * inside the box, so a square photo would come out 630 x 630 rather than the
+ * 1200 x 630 the share tags promise.
+ */
+function shareImageUrl(image: unknown, width: number, height: number) {
+  return urlFor(image as never)
+    .width(width)
+    .height(height)
+    .fit('crop')
+    .crop('focalpoint')
+    .url()
+}
+
 /** Meta tags for a page, falling back to the site defaults from Studio. */
 export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: SeoContext) {
   // Everything here lands in <head>. Stega markers there would show up in
@@ -21,7 +36,8 @@ export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: 
     page?.seo?.description || settings?.seo?.description || settings?.tagline || '',
   )
   const share = page?.seo?.shareImage ?? settings?.seo?.shareImage
-  const imageUrl = share?.asset ? urlFor(share as never).width(1200).height(630).url() : undefined
+  const imageUrl = share?.asset ? shareImageUrl(share, 1200, 630) : undefined
+  const imageAlt = stegaClean(share?.alt) || undefined
 
   const tags: Record<string, string>[] = [
     {title},
@@ -29,6 +45,8 @@ export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: 
     {property: 'og:title', content: title},
     {property: 'og:description', content: description},
     {property: 'og:type', content: 'website'},
+    {property: 'og:site_name', content: business},
+    {property: 'og:locale', content: 'en_GB'},
     {name: 'twitter:card', content: imageUrl ? 'summary_large_image' : 'summary'},
   ]
 
@@ -40,7 +58,12 @@ export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: 
     tags.push({property: 'og:url', content: seo.canonicalUrl})
   }
 
-  if (imageUrl) tags.push({property: 'og:image', content: imageUrl})
+  if (imageUrl) {
+    tags.push({property: 'og:image', content: imageUrl})
+    tags.push({property: 'og:image:width', content: '1200'})
+    tags.push({property: 'og:image:height', content: '630'})
+    if (imageAlt) tags.push({property: 'og:image:alt', content: imageAlt})
+  }
 
   // Kept out of search results when Studio says so, or when this isn't the
   // public site at all (deploy previews, the netlify.app address, local dev).
@@ -61,6 +84,19 @@ export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
   // Structured data is machine-read; stega would corrupt it.
   settings = stegaClean(settings) as SiteSettings
 
+  // The site-wide share photo doubles as the business photo: one square and one
+  // wide crop, which is what Google asks for. A real logo, once one is uploaded
+  // in Studio, goes in `logo` — a photograph does not belong there.
+  const share = settings.seo?.shareImage
+  const photos = share?.asset
+    ? [shareImageUrl(share, 1200, 1200), shareImageUrl(share, 1200, 630)]
+    : undefined
+
+  const areas = [
+    settings.serviceArea ? {'@type': 'AdministrativeArea', name: settings.serviceArea} : null,
+    ...(settings.areasServed ?? []).map((name) => ({'@type': 'City', name})),
+  ].filter(Boolean)
+
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -72,10 +108,11 @@ export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
     telephone: settings.phone,
     email: settings.email,
     url: siteUrl,
-    // The GROQ projection yields null rather than undefined when no logo has
+    // The GROQ projection yields null rather than undefined when nothing has
     // been uploaded, and JSON.stringify keeps null while dropping undefined —
-    // so without this the output carries a dead "image": null property.
-    image: settings.logoUrl ?? undefined,
+    // so each of these falls back to undefined, never null.
+    image: photos ?? settings.logoUrl ?? undefined,
+    logo: settings.logoUrl ?? undefined,
     address: settings.address
       ? {
           '@type': 'PostalAddress',
@@ -88,7 +125,7 @@ export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
           addressCountry: 'GB',
         }
       : undefined,
-    areaServed: settings.serviceArea ? {'@type': 'Place', name: settings.serviceArea} : undefined,
+    areaServed: areas.length ? areas : undefined,
     openingHoursSpecification: settings.openingHours?.map((h) => ({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: h.days,

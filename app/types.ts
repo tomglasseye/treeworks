@@ -58,6 +58,7 @@ export type SiteSettings = {
   email?: string
   address?: Address
   serviceArea?: string
+  areasServed?: string[] | null
   openingHours?: {_key?: string; days?: string; hours?: string}[] | null
   instagramHandle?: string
   facebookUrl?: string

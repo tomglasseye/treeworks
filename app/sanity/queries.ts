@@ -103,6 +103,19 @@ const seoFragment = /* groq */ `
   }
 `
 
+/**
+ * The site-wide defaults are stored as `defaultSeo` on siteSettings but the
+ * rest of the app reads them as `settings.seo`. Projecting under that name here
+ * keeps the two in step — without the alias the default description and the
+ * default share image both came back null.
+ */
+const defaultSeoFragment = /* groq */ `
+  "seo": defaultSeo {
+    title, description, noIndex,
+    shareImage { ${imageFragment} }
+  }
+`
+
 /* ------------------------------------------------------------------ queries */
 
 export const SITE_QUERY = defineQuery(/* groq */ `{
@@ -111,8 +124,9 @@ export const SITE_QUERY = defineQuery(/* groq */ `{
     phone, phoneLabel, secondaryPhone, secondaryPhoneLabel, emergencyPhone,
     email, address, serviceArea, openingHours,
     instagramHandle, facebookUrl,
+    areasServed,
     "logoUrl": logo.asset->url,
-    ${seoFragment}
+    ${defaultSeoFragment}
   },
   "navigation": *[_type == "navigation"][0] {
     headerLinks[] {
