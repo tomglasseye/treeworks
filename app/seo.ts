@@ -2,8 +2,14 @@ import {stegaClean} from '@sanity/client/stega'
 import type {PageDoc, SiteSettings} from './types'
 import {urlFor} from './sanity/image'
 
+/**
+ * Where the page lives, and whether search engines may index it — both come
+ * from `seoContext()` in siteUrl.server.ts.
+ */
+export type SeoContext = {canonicalUrl?: string; indexable?: boolean}
+
 /** Meta tags for a page, falling back to the site defaults from Studio. */
-export function buildMeta(page?: PageDoc | null, settings?: SiteSettings) {
+export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: SeoContext) {
   // Everything here lands in <head>. Stega markers there would show up in
   // Google's snippet and in the browser tab, so strip them unconditionally —
   // there is nothing to click-to-edit inside a meta tag anyway.
@@ -26,8 +32,21 @@ export function buildMeta(page?: PageDoc | null, settings?: SiteSettings) {
     {name: 'twitter:card', content: imageUrl ? 'summary_large_image' : 'summary'},
   ]
 
+  // One address per page. The redirect for trailing slashes lives in the root
+  // loader; this tells search engines which URL to credit if a variant (a
+  // tracking parameter, say) ever reaches them anyway.
+  if (seo?.canonicalUrl) {
+    tags.push({tagName: 'link', rel: 'canonical', href: seo.canonicalUrl})
+    tags.push({property: 'og:url', content: seo.canonicalUrl})
+  }
+
   if (imageUrl) tags.push({property: 'og:image', content: imageUrl})
-  if (page?.seo?.noIndex) tags.push({name: 'robots', content: 'noindex, nofollow'})
+
+  // Kept out of search results when Studio says so, or when this isn't the
+  // public site at all (deploy previews, the netlify.app address, local dev).
+  if (page?.seo?.noIndex || seo?.indexable === false) {
+    tags.push({name: 'robots', content: 'noindex, nofollow'})
+  }
 
   return tags
 }

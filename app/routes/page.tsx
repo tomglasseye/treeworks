@@ -7,7 +7,7 @@ import {SectionRenderer} from '~/components/SectionRenderer'
 import {SiteLayout} from '~/components/SiteLayout'
 import {Prose} from '~/components/ui/Prose'
 import {buildMeta} from '~/seo'
-import {siteUrl} from '~/siteUrl.server'
+import {seoContext} from '~/siteUrl.server'
 import type {PageDoc, SiteData} from '~/types'
 
 export async function loader({request, params}: Route.LoaderArgs) {
@@ -36,12 +36,15 @@ export async function loader({request, params}: Route.LoaderArgs) {
     query: SLUG_QUERY,
     params: queryParams,
     preview,
-    siteUrl: siteUrl(request),
+    ...seoContext(request),
   }
 }
 
 export function meta({loaderData}: Route.MetaArgs) {
-  return buildMeta(loaderData?.initial?.data, loaderData?.site?.settings)
+  return buildMeta(loaderData?.initial?.data, loaderData?.site?.settings, {
+    canonicalUrl: loaderData?.canonicalUrl,
+    indexable: loaderData?.indexable,
+  })
 }
 
 export default function Page({loaderData}: Route.ComponentProps) {

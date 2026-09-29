@@ -5,7 +5,7 @@ import {HOME_QUERY, SITE_QUERY} from '~/sanity/queries'
 import {SectionRenderer} from '~/components/SectionRenderer'
 import {SiteLayout} from '~/components/SiteLayout'
 import {buildMeta} from '~/seo'
-import {siteUrl} from '~/siteUrl.server'
+import {seoContext} from '~/siteUrl.server'
 import type {PageDoc, SiteData} from '~/types'
 
 export async function loader({request}: Route.LoaderArgs) {
@@ -21,12 +21,15 @@ export async function loader({request}: Route.LoaderArgs) {
     query: HOME_QUERY,
     params: {},
     preview,
-    siteUrl: siteUrl(request),
+    ...seoContext(request),
   }
 }
 
 export function meta({loaderData}: Route.MetaArgs) {
-  return buildMeta(loaderData?.initial?.data, loaderData?.site?.settings)
+  return buildMeta(loaderData?.initial?.data, loaderData?.site?.settings, {
+    canonicalUrl: loaderData?.canonicalUrl,
+    indexable: loaderData?.indexable,
+  })
 }
 
 export default function Home({loaderData}: Route.ComponentProps) {

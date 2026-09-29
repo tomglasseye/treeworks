@@ -256,6 +256,33 @@ projection returns null for an unset field, `JSON.stringify` keeps null while
 dropping `undefined`, and `"image": null` asserts the business *has* no image
 rather than saying nothing.
 
+### One address per page, and what search engines may index
+
+| Concern | How it works |
+|---|---|
+| The site's own address | `siteUrl(request)` in `app/siteUrl.server.ts` reads `SITE_URL`, then Netlify's `URL`, then the request's own origin. Netlify's `URL` is the *primary* domain, so it changes from `treeworkscornwall.netlify.app` to the custom domain by itself once that domain is made primary. **There is nothing to configure**, before or after launch. |
+| Canonical + `og:url` | Every page. Built by `seoContext()` from the address above plus the request path, with no trailing slash and no query string, and added by `buildMeta()`. |
+| Trailing slashes | The root loader (`app/root.tsx`) answers `/tree-surgery/` with a 301 to `/tree-surgery`, keeping the query string. Without it both URLs returned the same page. |
+| What may be indexed | `isIndexable(request)`. It looks at the **host the request arrived on**: `*.netlify.app` (the default address, deploy previews, branch deploys) and `localhost` are closed; anything else is open. Closed hosts get `Disallow: /` in `robots.txt` and a `noindex` meta tag, and their canonical points at themselves. |
+
+Why the host and not Netlify's `CONTEXT` variable: `CONTEXT` is a build-time value
+that is not reliably present when the server function runs, and
+`treeworkscornwall.netlify.app` is itself a *production* deploy, so "is this
+production?" would have called it indexable. Because the rule reads the host, it
+also needs no change at launch: the moment the custom domain is attached and the
+DNS is switched, requests arrive on an open host and the site becomes indexable.
+
+`SITE_URL` is optional. Setting it makes the rule stricter — only that exact host
+is indexable — and overrides the address used in canonicals, the sitemap and
+structured data. `seo.noIndex` on a page in Studio still keeps that one page out
+(and out of the sitemap) on any host.
+
+`npm run check:seo` asserts all of this against a running site: a canonical and
+`og:url` on the homepage and an inner page, `robots.txt` and the `noindex` tag
+agreeing with each other, the trailing-slash 301, and the homepage `<loc>` ending
+in `/` to match its canonical. Point it at production after a launch with
+`node scripts/check-seo.mjs https://treeworkscornwall.co.uk`.
+
 ## Live preview (Presentation)
 
 Open Studio → **Presentation**. The site renders in an iframe beside the content,

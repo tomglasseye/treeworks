@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
   data,
   isRouteErrorResponse,
+  redirect,
   useRouteLoaderData,
 } from 'react-router'
 import {Suspense, lazy} from 'react'
@@ -25,6 +26,16 @@ const VisualEditing = lazy(() =>
 )
 
 export async function loader({request}: Route.LoaderArgs) {
+  // /tree-surgery/ and /tree-surgery would otherwise both answer 200 with the
+  // same page, splitting whatever ranking either earns. Every URL on the site is
+  // written without a trailing slash, so that is the one that wins. The Studio
+  // is the exception (it needs its slash), though Netlify serves it as static
+  // files before this ever runs.
+  const {pathname, search} = new URL(request.url)
+  if (pathname.length > 1 && pathname.endsWith('/') && !pathname.startsWith('/studio')) {
+    throw redirect(pathname.replace(/\/+$/, '') + search, 301)
+  }
+
   const preview = await isPreviewEnabled(request)
   const inPreviewFrame = await isInPreviewFrame(request)
   // Opening the site normally clears any lingering preview cookie. This is what
