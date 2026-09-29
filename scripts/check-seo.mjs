@@ -59,9 +59,12 @@ const robots = await get('/robots.txt')
 if (robots) {
   const text = robots.body.toString('utf8')
   if (robots.res.status !== 200) fail(`/robots.txt — expected 200, got ${robots.res.status}`)
+  else if (/^Disallow:\s*\/\s*$/m.test(text))
+    // localhost, *.netlify.app and deploy previews are closed on purpose, and a
+    // Sitemap: line on a site that blocks everything would only contradict it.
+    notes.push('/robots.txt is disallowing everything (not the public host, so this is expected)')
   else if (!/^Sitemap:\s*https?:\/\/\S+/m.test(text))
     fail('/robots.txt — no absolute Sitemap: line')
-  if (/^Disallow:\s*\/\s*$/m.test(text)) notes.push('/robots.txt is disallowing everything (non-production build)')
 }
 
 /** Doubles as the source of a real page slug to test breadcrumbs against. */
@@ -148,6 +151,65 @@ if (pagePath) {
   }
 }
 
+/**
+ * One address per page.
+ *
+ * A trailing-slash variant that answers 200 is a duplicate URL, and a missing
+ * canonical leaves search engines to guess which copy to credit. Neither shows
+ * up anywhere until rankings are already split, so both are asserted here.
+ */
+function metaOf(html, attr, value) {
+  const tag = [...html.matchAll(/<(?:meta|link)\b[^>]*>/g)]
+    .map(([t]) => t)
+    .find((t) => new RegExp(`${attr}=["']${value}["']`).test(t))
+  if (!tag) return undefined
+  return tag.match(/(?:content|href)=["']([^"']*)["']/)?.[1]
+}
+
+const disallowsEverything = /^Disallow:\s*\/\s*$/m.test(robots?.body.toString('utf8') ?? '')
+
+async function checkAddress(path) {
+  const got = await get(path)
+  if (!got || got.res.status !== 200) return
+  const html = got.body.toString('utf8')
+  const expected = `${base}${path}`
+
+  const canonical = metaOf(html, 'rel', 'canonical')
+  if (!canonical) fail(`${path} — no <link rel="canonical">`)
+  else if (canonical !== expected) fail(`${path} — canonical is ${canonical}, expected ${expected}`)
+
+  const ogUrl = metaOf(html, 'property', 'og:url')
+  if (ogUrl !== canonical) fail(`${path} — og:url (${ogUrl}) does not match the canonical (${canonical})`)
+
+  // robots.txt and the meta tag come from the same rule (isIndexable), so they
+  // must agree: a host that is closed in one and open in the other is a bug.
+  const noindex = /noindex/i.test(metaOf(html, 'name', 'robots') ?? '')
+  if (disallowsEverything && !noindex) fail(`${path} — robots.txt blocks the site, but the page has no noindex`)
+  if (!disallowsEverything && noindex) fail(`${path} — has noindex although robots.txt allows the site`)
+}
+
+await checkAddress('/')
+if (pagePath) {
+  await checkAddress(pagePath)
+
+  try {
+    const res = await fetch(`${base}${pagePath}/?utm=check`, {redirect: 'manual'})
+    const location = res.headers.get('location') ?? ''
+    if (res.status !== 301) fail(`${pagePath}/ — expected a 301 to ${pagePath}, got ${res.status}`)
+    else if (new URL(location, base).pathname + new URL(location, base).search !== `${pagePath}?utm=check`)
+      fail(`${pagePath}/ — redirects to ${location}, expected ${pagePath}?utm=check`)
+  } catch (error) {
+    fail(`${pagePath}/ — request failed: ${error.message}`)
+  }
+}
+
+if (sitemap) {
+  const homeLoc = [...sitemap.body.toString('utf8').matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((m) => m[1])
+    .find((l) => new URL(l).pathname === '/')
+  if (homeLoc && !homeLoc.endsWith('/')) fail(`/sitemap.xml — homepage <loc> is ${homeLoc}; it should end in "/" to match its canonical`)
+}
+
 for (const note of notes) console.log(`check:seo — note: ${note}`)
 
 if (failures.length) {
@@ -156,5 +218,5 @@ if (failures.length) {
 }
 
 console.log(
-  `check:seo — OK. Icons, manifest, robots, sitemap, LocalBusiness${pagePath ? ` and breadcrumbs (${pagePath})` : ''} all valid.`,
+  `check:seo — OK. Icons, manifest, robots, sitemap, canonicals, trailing-slash redirect, LocalBusiness${pagePath ? ` and breadcrumbs (${pagePath})` : ''} all valid.`,
 )

@@ -21,7 +21,8 @@ export async function loader({request}: {request: Request}) {
   const pages = await publicClient.fetch<Entry[]>(SITEMAP_QUERY)
 
   const urls = pages.map((page) => {
-    const path = page.isHomepage ? '' : `/${page.slug}`
+    // The homepage is "/" rather than "", so <loc> matches its canonical URL.
+    const path = page.isHomepage ? '/' : `/${page.slug}`
     return [
       '  <url>',
       `    <loc>${origin}${path}</loc>`,

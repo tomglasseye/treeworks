@@ -1,4 +1,4 @@
-import {siteUrl} from '~/siteUrl.server'
+import {isIndexable, siteUrl} from '~/siteUrl.server'
 
 /**
  * Served from a route rather than public/ so the Sitemap line always points at
@@ -7,11 +7,10 @@ import {siteUrl} from '~/siteUrl.server'
 export function loader({request}: {request: Request}) {
   const origin = siteUrl(request)
 
-  // Deploy previews and branch builds must never be indexed — they would
-  // compete with the real site for the same content.
-  const isProduction = process.env.CONTEXT === 'production' || !process.env.CONTEXT
-
-  const body = isProduction
+  // Deploy previews, branch builds and the netlify.app address must never be
+  // indexed — they would compete with the real site for the same content. Pages
+  // served from those hosts also carry a noindex meta tag (see buildMeta).
+  const body = isIndexable(request)
     ? [
         'User-agent: *',
         'Allow: /',
