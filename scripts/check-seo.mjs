@@ -132,6 +132,15 @@ else {
   assertNoNulls('LocalBusiness', business)
   if (business.url && !/^https?:\/\//.test(business.url))
     fail('LocalBusiness — "url" is not an absolute URL')
+
+  const photos = [business.image].flat().filter(Boolean)
+  if (photos.length === 0) fail('LocalBusiness — no "image"; set the site-wide share image in Studio')
+  if (photos.some((u) => typeof u !== 'string' || !/^https:\/\//.test(u)))
+    fail('LocalBusiness — "image" must be absolute https URLs')
+
+  const areas = [business.areaServed].flat().filter(Boolean)
+  if (!areas.some((a) => a?.['@type'] === 'City'))
+    fail('LocalBusiness — "areaServed" lists no towns; fill in "Towns we cover" in Studio')
 }
 if (home.some((b) => b['@type'] === 'BreadcrumbList'))
   fail('homepage — has a BreadcrumbList, which should only appear on inner pages')
@@ -188,9 +197,40 @@ async function checkAddress(path) {
   if (!disallowsEverything && noindex) fail(`${path} — has noindex although robots.txt allows the site`)
 }
 
+/**
+ * What a link looks like when it is pasted into Facebook, WhatsApp or a text.
+ *
+ * With no share image the card is a bare title — and that is easy to miss,
+ * because nothing errors. (For a while the site-wide image was never even read:
+ * it was queried from the wrong field.) So a missing image is a failure here.
+ */
+async function checkShareTags(path) {
+  const got = await get(path)
+  if (!got || got.res.status !== 200) return
+  const html = got.body.toString('utf8')
+
+  const image = metaOf(html, 'property', 'og:image')
+  if (!image) fail(`${path} — no og:image; shared links will have no picture`)
+  else if (!/^https:\/\//.test(image)) fail(`${path} — og:image is not an absolute https URL: ${image}`)
+  else {
+    if (metaOf(html, 'property', 'og:image:width') !== '1200' || metaOf(html, 'property', 'og:image:height') !== '630')
+      fail(`${path} — og:image:width / og:image:height should be 1200 / 630`)
+    // Attribute values arrive HTML-escaped, so "&" is still "&amp;" here.
+    const query = image.replace(/&amp;/g, '&')
+    if (!/[?&]h=630(&|$)/.test(query) || !/[?&]w=1200(&|$)/.test(query))
+      fail(`${path} — og:image is not requested at 1200 x 630 (${image})`)
+    if (metaOf(html, 'name', 'twitter:card') !== 'summary_large_image')
+      fail(`${path} — has an og:image but twitter:card is not summary_large_image`)
+  }
+  if (!metaOf(html, 'property', 'og:site_name')) fail(`${path} — no og:site_name`)
+  if (!metaOf(html, 'property', 'og:locale')) fail(`${path} — no og:locale`)
+}
+
 await checkAddress('/')
+await checkShareTags('/')
 if (pagePath) {
   await checkAddress(pagePath)
+  await checkShareTags(pagePath)
 
   try {
     const res = await fetch(`${base}${pagePath}/?utm=check`, {redirect: 'manual'})
@@ -218,5 +258,5 @@ if (failures.length) {
 }
 
 console.log(
-  `check:seo — OK. Icons, manifest, robots, sitemap, canonicals, trailing-slash redirect, LocalBusiness${pagePath ? ` and breadcrumbs (${pagePath})` : ''} all valid.`,
+  `check:seo — OK. Icons, manifest, robots, sitemap, canonicals, share tags, trailing-slash redirect, LocalBusiness${pagePath ? ` and breadcrumbs (${pagePath})` : ''} all valid.`,
 )

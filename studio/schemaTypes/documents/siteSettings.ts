@@ -82,6 +82,15 @@ export const siteSettings = defineType({
       description: 'Used in LocalBusiness structured data.',
     }),
     defineField({
+      name: 'areasServed',
+      title: 'Towns we cover',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'contact',
+      description:
+        'Towns listed in the LocalBusiness structured data, so Google can match the business to searches for these places. Only list towns you really work in.',
+    }),
+    defineField({
       name: 'openingHours',
       type: 'array',
       group: 'contact',
