@@ -34,8 +34,8 @@ export const contactForm = defineType({
       initialValue: ['name', 'email', 'phone', 'service', 'postcode', 'message'],
       options: {
         list: [
-          {title: 'Name (always required)', value: 'name'},
-          {title: 'Email', value: 'email'},
+          {title: 'Name (always shown, required)', value: 'name'},
+          {title: 'Email (always shown, required)', value: 'email'},
           {title: 'Phone', value: 'phone'},
           {title: 'Which service', value: 'service'},
           {title: 'Postcode', value: 'postcode'},

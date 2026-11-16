@@ -15,6 +15,8 @@ const FIELD_LABELS: Record<string, string> = {
   source: 'How did you hear about us?',
 }
 
+const REQUIRED = ['name', 'email']
+
 const FIELD_TYPES: Record<string, string> = {
   name: 'text',
   email: 'email',
@@ -40,7 +42,10 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
 
   // GROQ sends null for absent arrays, so coalesce rather than default.
   // Cleaned: these drive .includes()/.filter() and become input name attributes.
-  const fields = section.fields ? optList(section.fields) : ['name', 'email', 'phone', 'message']
+  // Name and email are always on the form and always required: without them
+  // there is no way to reply to the enquiry.
+  const chosen = section.fields ? optList(section.fields) : ['phone', 'message']
+  const fields = ['name', 'email', ...chosen.filter((f) => f !== 'name' && f !== 'email')]
   const serviceOptions = optList(section.serviceOptions)
   const netlifyFormName = opt(formName) ?? 'contact'
 
@@ -124,12 +129,12 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
                   <label key={field} className="block">
                     <span className={`u-eyebrow mb-2 block ${muted}`}>
                       {FIELD_LABELS[field]}
-                      {field === 'name' ? ' *' : ''}
+                      {REQUIRED.includes(field) ? ' *' : ''}
                     </span>
                     <input
                       type={FIELD_TYPES[field] ?? 'text'}
                       name={field}
-                      required={field === 'name'}
+                      required={REQUIRED.includes(field)}
                       autoComplete={
                         field === 'name' ? 'name' : field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'postal-code'
                       }
