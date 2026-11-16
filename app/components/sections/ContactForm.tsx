@@ -106,14 +106,14 @@ export function ContactForm({section, settings}: {section: ContactFormSection; s
             name={netlifyFormName}
             method="POST"
             data-netlify="true"
-            netlify-honeypot="bot-field"
+            netlify-honeypot="website"
             onSubmit={handleSubmit}
             className="mt-10 grid gap-5"
           >
             <input type="hidden" name="form-name" value={netlifyFormName} />
             <p className="hidden">
               <label>
-                Leave this field empty: <input name="bot-field" tabIndex={-1} autoComplete="off" />
+                Leave this field empty: <input name="website" tabIndex={-1} autoComplete="off" />
               </label>
             </p>
 

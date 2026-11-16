@@ -27,7 +27,7 @@ const rendered = new Set([...labelsBlock[1].matchAll(/^\s*(\w+):/gm)].map((m) =>
 
 const missing = [...rendered].filter((f) => !declared.has(f))
 const orphaned = [...declared].filter(
-  (f) => !rendered.has(f) && !['form-name', 'bot-field'].includes(f),
+  (f) => !rendered.has(f) && !['form-name', 'website'].includes(f),
 )
 
 if (missing.length) {
