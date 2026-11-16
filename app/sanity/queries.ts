@@ -145,7 +145,7 @@ export const SITE_QUERY = defineQuery(/* groq */ `{
 
 export const HOME_QUERY = defineQuery(/* groq */ `
   *[_type == "page" && isHomepage == true][0] {
-    _id, _type, title,
+    _id, _type, title, isHomepage,
     "slug": slug.current,
     ${sectionsFragment},
     ${seoFragment}

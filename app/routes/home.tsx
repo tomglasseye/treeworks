@@ -41,7 +41,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
   const page = preview ? (data ?? initial.data) : initial.data
 
   return (
-    <SiteLayout site={site} siteUrl={siteUrl} includeJsonLd>
+    <SiteLayout site={site} siteUrl={siteUrl} page={page} includeJsonLd>
       {page ? (
         <SectionRenderer sections={page.sections} settings={site?.settings} />
       ) : (
