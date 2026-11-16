@@ -37,7 +37,7 @@ export function SiteLayout({
   // LocalBusiness describes the organisation rather than the page, so it ships
   // on the homepage alone — repeating it site-wide hands Google several copies
   // of one entity to reconcile.
-  const business = includeJsonLd ? localBusinessJsonLd(site?.settings, siteUrl) : null
+  const business = includeJsonLd ? localBusinessJsonLd(site?.settings, siteUrl, page) : null
   const breadcrumbs = siteUrl ? breadcrumbJsonLd(page, siteUrl) : null
 
   return (

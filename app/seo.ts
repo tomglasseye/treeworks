@@ -1,5 +1,5 @@
 import {stegaClean} from '@sanity/client/stega'
-import type {PageDoc, SiteSettings} from './types'
+import type {PageDoc, SanityImage, SiteSettings} from './types'
 import {urlFor} from './sanity/image'
 
 /**
@@ -23,6 +23,25 @@ function shareImageUrl(image: unknown, width: number, height: number) {
     .url()
 }
 
+/**
+ * The page's first hero photo, if it has one. Used as the share picture when
+ * no share image has been set in Studio, so links posted to Facebook or
+ * WhatsApp show that page's own picture rather than the same site-wide one.
+ */
+export function heroImage(page?: PageDoc | null): SanityImage | undefined {
+  const hero = page?.sections?.find((s) => s._type === 'hero') as
+    | {image?: SanityImage}
+    | undefined
+  return hero?.image?.asset ? hero.image : undefined
+}
+
+/** "07880 335025" → "+44 7880 335025": the international form Google asks for. */
+function intlPhone(phone?: string) {
+  if (!phone) return undefined
+  const p = phone.trim()
+  return p.startsWith('0') ? `+44 ${p.slice(1)}` : p
+}
+
 /** Meta tags for a page, falling back to the site defaults from Studio. */
 export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: SeoContext) {
   // Everything here lands in <head>. Stega markers there would show up in
@@ -35,7 +54,10 @@ export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: 
   const description = stegaClean(
     page?.seo?.description || settings?.seo?.description || settings?.tagline || '',
   )
-  const share = page?.seo?.shareImage ?? settings?.seo?.shareImage
+  // Page's own share image, then its hero photo, then the site-wide default.
+  const share = page?.seo?.shareImage?.asset
+    ? page.seo.shareImage
+    : (heroImage(page) ?? settings?.seo?.shareImage)
   const imageUrl = share?.asset ? shareImageUrl(share, 1200, 630) : undefined
   const imageAlt = stegaClean(share?.alt) || undefined
 
@@ -78,7 +100,11 @@ export function buildMeta(page?: PageDoc | null, settings?: SiteSettings, seo?: 
  * LocalBusiness structured data — absent from the old site entirely, and one of
  * the higher-leverage SEO additions for a trade operating across a region.
  */
-export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
+export function localBusinessJsonLd(
+  settings?: SiteSettings,
+  siteUrl?: string,
+  homepage?: PageDoc | null,
+) {
   if (!settings) return null
 
   // Structured data is machine-read; stega would corrupt it.
@@ -87,7 +113,8 @@ export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
   // The site-wide share photo doubles as the business photo: one square and one
   // wide crop, which is what Google asks for. A real logo, once one is uploaded
   // in Studio, goes in `logo` — a photograph does not belong there.
-  const share = settings.seo?.shareImage
+  // Falls back to the homepage hero photo until a share image is set.
+  const share = settings.seo?.shareImage?.asset ? settings.seo.shareImage : heroImage(homepage)
   const photos = share?.asset
     ? [shareImageUrl(share, 1200, 1200), shareImageUrl(share, 1200, 630)]
     : undefined
@@ -105,14 +132,16 @@ export function localBusinessJsonLd(settings?: SiteSettings, siteUrl?: string) {
     '@id': siteUrl ? `${siteUrl}/#business` : undefined,
     name: settings.businessName,
     description: settings.tagline,
-    telephone: settings.phone,
+    telephone: intlPhone(settings.phone),
     email: settings.email,
     url: siteUrl,
     // The GROQ projection yields null rather than undefined when nothing has
     // been uploaded, and JSON.stringify keeps null while dropping undefined —
     // so each of these falls back to undefined, never null.
     image: photos ?? settings.logoUrl ?? undefined,
-    logo: settings.logoUrl ?? undefined,
+    // An uploaded logo wins; until then the app icon, which is raster and at
+    // least the 112px square Google asks for.
+    logo: settings.logoUrl ?? (siteUrl ? `${siteUrl}/icon-512.png` : undefined),
     address: settings.address
       ? {
           '@type': 'PostalAddress',
