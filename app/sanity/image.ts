@@ -14,9 +14,11 @@ const QUALITY = 78
 /**
  * Candidate widths. Deliberately coarse — every extra step is another cache
  * entry on Sanity's CDN for a file almost nobody requests, and the browser only
- * ever picks one.
+ * ever picks one. 480 is the exception: a three-up card at a 1350px desktop
+ * (Lighthouse's desktop profile) needs ~402px, just past 400, which otherwise
+ * jumped straight to 640.
  */
-const WIDTHS = [400, 640, 828, 1080, 1400, 1920, 2400]
+const WIDTHS = [400, 480, 640, 828, 1080, 1400, 1920, 2400]
 
 /**
  * `sizes` values, worked out from the real layout rather than the viewport.
