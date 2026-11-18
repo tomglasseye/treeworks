@@ -3,6 +3,7 @@ import {Figure} from '../ui/Figure'
 import {ButtonRow} from '../ui/Button'
 import {Section as Wrapper} from '../ui/Section'
 import {opt} from '~/lib/stega'
+import {SIZES} from '~/sanity/image'
 
 /**
  * Three layouts. `full` is the Solterra move: a full-bleed image inset from the
@@ -31,7 +32,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
                 <Figure
                   image={image}
                   priority
-                  sizes="(min-width: 1536px) 1400px, 100vw"
+                  sizes={SIZES.container}
                   rounded={false}
                   className="absolute inset-0 h-full w-full"
                 />
@@ -114,7 +115,7 @@ export function Hero({section, settings}: {section: HeroSection; settings?: Site
           image={image}
           priority
           aspect={4 / 3}
-          sizes="(min-width: 1024px) 50vw, 100vw"
+          sizes={SIZES.half}
           className="aspect-[4/5] lg:aspect-[4/3]"
         />
       </div>

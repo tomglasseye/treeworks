@@ -5,6 +5,7 @@ import {Button} from '../ui/Button'
 import {Section as Wrapper, toneMuted, toneRule} from '../ui/Section'
 import {Reveal} from '../ui/Reveal'
 import {opt} from '~/lib/stega'
+import {SIZES} from '~/sanity/image'
 
 /**
  * The workhorse. Four layouts over one shape, absorbing every repeating
@@ -60,7 +61,7 @@ export function FeatureList({
                   image={item.image}
                   aspect={4 / 3}
                   className={`aspect-[4/3] ${flip ? 'lg:order-1' : ''}`}
-                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  sizes={SIZES.half}
                 />
               </Reveal>
             )
@@ -95,7 +96,7 @@ export function FeatureList({
                 rounded={false}
                 aspect={4 / 3}
                 className="aspect-[4/3]"
-                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                sizes={SIZES.third}
               />
               <div className="p-6">
                 <h3 className={`font-display text-xl ${headingColor}`}>{item.title}</h3>

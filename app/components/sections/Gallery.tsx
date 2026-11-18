@@ -4,6 +4,7 @@ import {Figure} from '../ui/Figure'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
 import {opt} from '~/lib/stega'
 import {Reveal} from '../ui/Reveal'
+import {SIZES} from '~/sanity/image'
 
 /**
  * Behold's free tier returns six posts, so the grid is built for six: two
@@ -97,7 +98,7 @@ export function Gallery({section, settings}: {section: GallerySection; settings?
               <Figure
                 image={img}
                 aspect={1}
-                sizes="(min-width: 768px) 33vw, 50vw"
+                sizes={layoutKey === 'strip' ? SIZES.galleryStrip : SIZES.galleryTile}
               />
             </Reveal>
           ))}

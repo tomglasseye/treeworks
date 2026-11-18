@@ -3,11 +3,12 @@ import type {PortableTextBlock} from '@portabletext/react'
 import {Link} from 'react-router'
 import {Figure} from './Figure'
 import type {SanityImage} from '~/types'
+import {SIZES} from '~/sanity/image'
 
 const components: PortableTextComponents = {
   types: {
     figure: ({value}: {value: SanityImage}) => (
-      <Figure image={value} className="my-8" sizes="(min-width: 768px) 720px, 100vw" />
+      <Figure image={value} className="my-8" sizes={SIZES.prose} />
     ),
   },
   marks: {

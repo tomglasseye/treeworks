@@ -4,6 +4,7 @@ import {Prose} from '../ui/Prose'
 import {ButtonRow} from '../ui/Button'
 import {Section as Wrapper} from '../ui/Section'
 import {opt} from '~/lib/stega'
+import {SIZES} from '~/sanity/image'
 
 export function TextWithImage({section, settings}: {section: TextWithImageSection; settings?: SiteSettings}) {
   const {eyebrow, heading, body, image, buttons, appearance} = section
@@ -30,7 +31,7 @@ export function TextWithImage({section, settings}: {section: TextWithImageSectio
           image={image}
           aspect={4 / 3}
           className={`aspect-[4/3] ${imageFirst ? 'lg:order-1' : ''}`}
-          sizes="(min-width: 1024px) 50vw, 100vw"
+          sizes={SIZES.half}
         />
       </div>
     </Wrapper>

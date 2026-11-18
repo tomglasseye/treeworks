@@ -4,6 +4,7 @@ import {Figure} from '../ui/Figure'
 import {Section as Wrapper, toneMuted} from '../ui/Section'
 import {Reveal} from '../ui/Reveal'
 import {opt} from '~/lib/stega'
+import {SIZES} from '~/sanity/image'
 
 export function ServiceCards({section}: {section: ServiceCardsSection}) {
   const {heading, intro, appearance} = section
@@ -37,7 +38,7 @@ export function ServiceCards({section}: {section: ServiceCardsSection}) {
                 aspect={4 / 3}
                 className="aspect-[4/3] overflow-hidden"
                 imgClassName="transition-transform duration-500 group-hover:scale-[1.03]"
-                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                sizes={SIZES.third}
               />
               <div className="flex flex-1 flex-col p-6">
                 <h3 className={`text-xl font-display ${onDark ? 'text-bone' : 'text-bark'}`}>

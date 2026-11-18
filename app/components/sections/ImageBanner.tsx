@@ -1,6 +1,7 @@
 import type {ImageBannerSection} from '~/types'
 import {Figure} from '../ui/Figure'
 import {Section as Wrapper} from '../ui/Section'
+import {SIZES} from '~/sanity/image'
 
 const HEIGHTS: Record<string, string> = {
   short: 'h-[32vh] min-h-[16rem]',
@@ -23,7 +24,7 @@ export function ImageBanner({section}: {section: ImageBannerSection}) {
           <Figure
             image={image}
             rounded={false}
-            sizes="(min-width: 1536px) 1400px, 100vw"
+            sizes={SIZES.container}
             className={HEIGHTS[height] ?? HEIGHTS.medium}
           />
           {overlayText ? (
