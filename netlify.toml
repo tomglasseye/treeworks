@@ -52,6 +52,12 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Self-hosted fonts. Not hashed, so a changed font must get a new filename.
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # The Studio's bundles are hashed too. Scoped to *.js on purpose: that same
 # directory holds the unhashed favicons and web manifest, which must stay
 # revalidatable.

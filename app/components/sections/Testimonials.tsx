@@ -6,7 +6,7 @@ import {Reveal} from '../ui/Reveal'
 function Stars({rating}: {rating?: number}) {
   if (!rating) return null
   return (
-    <p className="mb-4 text-sap-ink" aria-label={`${rating} out of 5`}>
+    <p className="mb-4 text-sap-ink" role="img" aria-label={`${rating} out of 5`}>
       <span aria-hidden>{'★'.repeat(rating)}</span>
     </p>
   )
@@ -16,7 +16,11 @@ function formatDate(date?: string) {
   if (!date) return null
   const d = new Date(date)
   if (Number.isNaN(d.getTime())) return null
-  return d.toLocaleDateString('en-GB', {month: 'long', year: 'numeric'})
+  // Pinned to UTC: a Sanity date ('2024-02-01') parses as UTC midnight, so in
+  // any browser west of Greenwich the local date is the day before. The server
+  // renders in UTC, the client then disagreed ("January" vs "February") and
+  // React threw hydration error #418 on every page with testimonials.
+  return d.toLocaleDateString('en-GB', {month: 'long', year: 'numeric', timeZone: 'UTC'})
 }
 
 export function Testimonials({section}: {section: TestimonialsSection}) {
@@ -84,7 +88,7 @@ export function Testimonials({section}: {section: TestimonialsSection}) {
               <span className="block">{t.author}</span>
               {t.location ? <span className="block">{t.location}</span> : null}
               {formatDate(t.date) ? (
-                <time dateTime={t.date} className="mt-1 block opacity-70">
+                <time dateTime={t.date} className="mt-1 block">
                   {formatDate(t.date)}
                 </time>
               ) : null}

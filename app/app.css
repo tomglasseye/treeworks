@@ -1,6 +1,38 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
+   Fonts — self-hosted (public/fonts), Latin subset only.
+   Previously from Google Fonts, which put a cross-origin stylesheet on the
+   critical path (~780 ms render-blocking on mobile Lighthouse) before the
+   font files could even be discovered. Same faces Google was serving:
+   Fraunces at 400 with the optical-size axis kept (instanced from the
+   variable font, so 35/42 KB rather than 67/82 KB), and Mulish variable.
+   The two upright faces are preloaded in root.tsx; italic loads on demand.
+   Cached for a year (netlify.toml) — give a changed file a new name.
+--------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Mulish";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("/fonts/mulish-latin.woff2") format("woff2");
+}
+
+/* ---------------------------------------------------------------------------
    Treeworks design tokens.
    Derived from solterra.ca's measured system, shifted warmer and darker —
    Cornish woodland rather than Québec agronomy. See docs/design-tokens.md.
